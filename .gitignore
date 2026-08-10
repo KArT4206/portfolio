@@ -40,3 +40,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# local-storage-provider uploads (dev only — production uses Vercel Blob)
+/storage/uploads/
+
+# AI agent skill docs Prisma init adds — vendor reference docs, not code
+.agents/
+.windsurf/
+.claude/skills/
+skills-lock.json
