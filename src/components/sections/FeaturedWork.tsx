@@ -3,9 +3,11 @@ import { ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import ProjectCard from "@/components/ProjectCard";
 import { GithubIcon } from "@/components/icons/SocialIcons";
-import { featuredProjects } from "@/lib/data";
+import { getFeaturedProjects } from "@/lib/projects";
 
-export default function FeaturedWork() {
+export default async function FeaturedWork() {
+  const featuredProjects = await getFeaturedProjects();
+
   return (
     <section id="work" className="scroll-mt-24 px-6 py-24">
       <div className="mx-auto max-w-6xl">

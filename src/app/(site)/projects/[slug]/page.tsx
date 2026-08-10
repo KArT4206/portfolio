@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, ArrowUpRight, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ArrowRight, FileText } from "lucide-react";
 import Reveal from "@/components/Reveal";
-import { projects } from "@/lib/data";
+import { getPublishedProjectBySlug, getPublishedProjects, getAllPublishedSlugs } from "@/lib/projects";
 
-export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const slugs = await getAllPublishedSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -15,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const project = projects.find((p) => p.slug === slug);
+  const project = await getPublishedProjectBySlug(slug);
   if (!project) return {};
   return {
     title: `${project.title} — Karthik B`,
@@ -29,11 +30,11 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = projects.find((p) => p.slug === slug);
+  const [project, allProjects] = await Promise.all([getPublishedProjectBySlug(slug), getPublishedProjects()]);
   if (!project) notFound();
 
-  const currentIndex = projects.findIndex((p) => p.slug === slug);
-  const next = projects[(currentIndex + 1) % projects.length];
+  const currentIndex = allProjects.findIndex((p) => p.slug === slug);
+  const next = allProjects[(currentIndex + 1) % allProjects.length];
 
   return (
     <article>
@@ -105,39 +106,66 @@ export default async function ProjectPage({
             </div>
           </Reveal>
 
-          <Reveal>
-            <h2 className="font-display text-2xl font-semibold tracking-tight">The Problem</h2>
-            <p className="mt-3 leading-relaxed text-muted">{project.problem}</p>
-          </Reveal>
+          {project.problem && (
+            <Reveal>
+              <h2 className="font-display text-2xl font-semibold tracking-tight">The Problem</h2>
+              <p className="mt-3 leading-relaxed text-muted">{project.problem}</p>
+            </Reveal>
+          )}
 
-          <Reveal>
-            <h2 className="font-display text-2xl font-semibold tracking-tight">The Solution</h2>
-            <ul className="mt-4 space-y-3">
-              {project.solution.map((s, i) => (
-                <li key={i} className="flex gap-3 text-muted">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-                  <span className="leading-relaxed">{s}</span>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
+          {project.solution.length > 0 && (
+            <Reveal>
+              <h2 className="font-display text-2xl font-semibold tracking-tight">The Solution</h2>
+              <ul className="mt-4 space-y-3">
+                {project.solution.map((s, i) => (
+                  <li key={i} className="flex gap-3 text-muted">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    <span className="leading-relaxed">{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          )}
 
-          <Reveal>
-            <h2 className="font-display text-2xl font-semibold tracking-tight">
-              Results &amp; Metrics
-            </h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {project.results.map((r) => (
-                <div
-                  key={r.label}
-                  className="rounded-xl border border-border bg-surface p-5"
-                >
-                  <p className="font-display text-2xl font-semibold gradient-text">{r.value}</p>
-                  <p className="mt-1 text-xs text-muted">{r.label}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
+          {project.results.length > 0 && (
+            <Reveal>
+              <h2 className="font-display text-2xl font-semibold tracking-tight">
+                Results &amp; Metrics
+              </h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {project.results.map((r) => (
+                  <div
+                    key={r.label}
+                    className="rounded-xl border border-border bg-surface p-5"
+                  >
+                    <p className="font-display text-2xl font-semibold gradient-text">{r.value}</p>
+                    <p className="mt-1 text-xs text-muted">{r.label}</p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          )}
+
+          {project.attachments.length > 0 && (
+            <Reveal>
+              <h2 className="font-display text-2xl font-semibold tracking-tight">
+                Documents &amp; Resources
+              </h2>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {project.attachments.map((a) => (
+                  <a
+                    key={a.url}
+                    href={a.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm transition-colors hover:border-accent/50 hover:text-accent"
+                  >
+                    <FileText size={14} /> {a.label}
+                  </a>
+                ))}
+              </div>
+            </Reveal>
+          )}
         </div>
       </section>
 
