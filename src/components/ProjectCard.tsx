@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import type { Project } from "@/lib/data";
+import type { PublicProject } from "@/lib/projects";
 
-const STATUS_STYLES: Record<Project["status"], string> = {
+const STATUS_STYLES: Record<string, string> = {
   "In Development": "text-accent-2 border-accent-2/30 bg-accent-2/10",
   Completed: "text-emerald-400 border-emerald-400/30 bg-emerald-400/10",
   Research: "text-accent border-accent/30 bg-accent/10",
+  Paused: "text-amber-400 border-amber-400/30 bg-amber-400/10",
+  Archived: "text-muted border-border bg-surface-2",
 };
 
-export default function ProjectCard({ project }: { project: Project }) {
+export default function ProjectCard({ project }: { project: PublicProject }) {
   return (
     <Link
       href={`/projects/${project.slug}`}
@@ -17,7 +19,7 @@ export default function ProjectCard({ project }: { project: Project }) {
       <div>
         <div className="flex items-start justify-between gap-3">
           <span
-            className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${STATUS_STYLES[project.status]}`}
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${STATUS_STYLES[project.status] ?? STATUS_STYLES.Archived}`}
           >
             {project.status}
           </span>
