@@ -8,6 +8,7 @@ import { profile } from "@/lib/data";
 
 const NAV_LINKS = [
   { href: "/#work", label: "Work" },
+  { href: "/github", label: "GitHub" },
   { href: "/#research", label: "Research" },
   { href: "/about", label: "About" },
   { href: "/#contact", label: "Contact" },
