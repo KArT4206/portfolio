@@ -1,0 +1,189 @@
+// Phase 1 of the portfolio CMS. Entities for Awards, Publications,
+// Certifications, Experience, Education, Skills, Resume versions, and
+// GitHub-presentation overrides are deliberately not modeled yet — they'll
+// follow the same Project/ProjectAttachment/Media pattern established here
+// once it's proven correct, rather than guessing their shape up front.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Auth ----------
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  lastLoginAt  DateTime? @db.Timestamptz(3)
+
+  sessions   AdminSession[]
+  auditLogs  AuditLog[]
+  mediaFiles Media[]
+}
+
+model AdminSession {
+  id        String    @id @default(cuid())
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // sha256 of the raw token — the raw token only ever lives in the httpOnly
+  // cookie, never at rest, so a DB read never exposes anything replayable.
+  tokenHash String    @unique
+  userAgent String?
+  ip        String?
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  expiresAt DateTime  @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// Every login attempt (success or failure), used for brute-force lockout.
+// Persisted rather than in-memory so the lockout survives serverless cold starts.
+model LoginAttempt {
+  id          String   @id @default(cuid())
+  username    String
+  ip          String
+  success     Boolean
+  attemptedAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([username, attemptedAt])
+  @@index([ip, attemptedAt])
+}
+
+// ---------- Media (shared file storage, used by any entity with attachments) ----------
+
+model Media {
+  id           String   @id @default(cuid())
+  // Storage-provider key/path (local relative path, or Vercel Blob pathname) —
+  // never exposed to the client directly; `url` is what gets rendered.
+  key          String   @unique
+  url          String
+  originalName String
+  mimeType     String
+  size         Int
+  sha256       String
+  width        Int?
+  height       Int?
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+
+  uploadedById String?
+  uploadedBy   AdminUser? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  projectAttachments ProjectAttachment[]
+  projectCoverOf     Project[]           @relation("ProjectCoverImage")
+
+  @@index([sha256])
+}
+
+// ---------- Projects ----------
+
+enum ProjectStatus {
+  IN_DEVELOPMENT
+  COMPLETED
+  RESEARCH
+  PAUSED
+  ARCHIVED
+}
+
+enum ProjectCategory {
+  SOFTWARE_ENGINEERING
+  FULL_STACK
+  AI_ML
+  CYBERSECURITY
+  EMBEDDED_SYSTEMS
+  IOT
+  RESEARCH
+  HARDWARE
+  OTHER
+}
+
+enum AttachmentVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+model Project {
+  id                  String            @id @default(cuid())
+  slug                String            @unique
+  title               String
+  shortTitle          String? // compact heading for cards; falls back to title if unset
+  shortDescription    String
+  detailedDescription String?
+  problem             String?
+  solution            String[]
+  // Array of { label: string, value: string } metric cards — kept as JSON
+  // rather than a separate table since it's small, display-only, and always
+  // rewritten as a whole set together (never queried/filtered individually).
+  results             Json?
+  role                String?
+  technologies        String[]
+  githubUrl           String?
+  demoUrl             String?
+  docsUrl             String?
+  paperUrl            String?
+  startDate           DateTime?         @db.Timestamptz(3)
+  endDate             DateTime?         @db.Timestamptz(3)
+  status              ProjectStatus     @default(IN_DEVELOPMENT)
+  categories          ProjectCategory[]
+  featured            Boolean           @default(false)
+  published           Boolean           @default(false)
+  displayOrder        Int               @default(0)
+
+  coverImageId String?
+  coverImage   Media?  @relation("ProjectCoverImage", fields: [coverImageId], references: [id], onDelete: SetNull)
+
+  attachments ProjectAttachment[]
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3) // soft delete — see repoConfig-style "never hard-delete without confirmation"
+
+  @@index([published, deletedAt, displayOrder])
+  @@index([featured])
+}
+
+model ProjectAttachment {
+  id           String               @id @default(cuid())
+  projectId    String
+  project      Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  mediaId      String
+  media        Media                @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  label        String // e.g. "IEEE Paper", "Project Report"
+  description  String?
+  visibility   AttachmentVisibility @default(PUBLIC)
+  displayOrder Int                  @default(0)
+  createdAt    DateTime             @default(now()) @db.Timestamptz(3)
+
+  @@index([projectId, displayOrder])
+}
+
+// ---------- Audit ----------
+
+enum AuditResult {
+  SUCCESS
+  FAILURE
+}
+
+model AuditLog {
+  id           String      @id @default(cuid())
+  action       String // e.g. "project.created", "auth.login"
+  actorId      String?
+  actor        AdminUser?  @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  resourceType String?
+  resourceId   String?
+  metadata     Json?
+  ip           String?
+  result       AuditResult @default(SUCCESS)
+  createdAt    DateTime    @default(now()) @db.Timestamptz(3)
+
+  @@index([createdAt])
+  @@index([actorId])
+}
