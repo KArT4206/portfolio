@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import ProjectCard from "@/components/ProjectCard";
+import { GithubIcon } from "@/components/icons/SocialIcons";
 import { featuredProjects } from "@/lib/data";
 
 export default function FeaturedWork() {
@@ -31,6 +32,17 @@ export default function FeaturedWork() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal delay={0.2} className="mt-10 flex justify-center">
+          <Link
+            href="/github"
+            className="group inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-colors hover:border-accent/50 hover:text-accent"
+          >
+            <GithubIcon width={15} height={15} />
+            See all repositories on GitHub
+            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </Reveal>
       </div>
     </section>
   );
