@@ -40,20 +40,23 @@ export default async function GithubPage() {
 
   return (
     <div>
-      <section className="noise-bg px-6 pb-12 pt-16 sm:pt-20">
-        <div className="mx-auto max-w-6xl">
+      <section className="relative overflow-hidden px-6 pb-[50px] pt-[58px] md:px-10">
+        <div className="hyperspace-field" aria-hidden />
+        <div className="relative">
           <Reveal>
-            <p className="text-sm font-medium text-accent">Live from GitHub</p>
-            <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            <p className="inline-block rounded-full border border-accent-green px-[10px] py-[2px] font-mono text-[11px] uppercase tracking-[0.1em] text-accent-green">
+              Live from GitHub
+            </p>
+            <h1 className="mt-[15px] font-display text-4xl font-medium tracking-[0.02em] sm:text-5xl">
               GitHub Projects
             </h1>
-            <p className="mt-4 max-w-2xl text-lg text-muted">
+            <p className="mt-[15px] max-w-2xl text-lg text-muted">
               Auto-synced from{" "}
               <a
                 href="https://github.com/KArT4206"
                 target="_blank"
                 rel="noreferrer"
-                className="text-foreground underline decoration-border underline-offset-4 hover:decoration-accent"
+                className="text-accent-green underline decoration-transparent underline-offset-4 hover:decoration-accent-green"
               >
                 github.com/KArT4206
               </a>{" "}
@@ -61,7 +64,7 @@ export default async function GithubPage() {
             </p>
 
             {stale && (
-              <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+              <div className="mt-[25px] flex items-start gap-2.5 border border-accent-crimson bg-black px-[15px] py-[10px] text-sm text-accent-crimson">
                 <AlertTriangle size={16} className="mt-0.5 shrink-0" />
                 <span>
                   Showing cached repository data — the live GitHub API request failed
@@ -74,23 +77,21 @@ export default async function GithubPage() {
         </div>
       </section>
 
-      <section className="px-6 pb-24">
-        <div className="mx-auto max-w-6xl">
-          {enriched.length === 0 && !stale ? (
-            <p className="text-sm text-muted">No public repositories found.</p>
-          ) : enriched.length === 0 && stale ? (
-            <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-              <p className="text-sm text-muted">
-                Unable to load projects right now — GitHub&apos;s API didn&apos;t respond and
-                there&apos;s no cached data yet. Try refreshing in a moment.
-              </p>
-            </div>
-          ) : (
-            <Reveal>
-              <RepoExplorer repos={enriched} />
-            </Reveal>
-          )}
-        </div>
+      <section className="wireframe-divider-top px-6 pb-[100px] pt-[50px] md:px-10">
+        {enriched.length === 0 && !stale ? (
+          <p className="text-sm text-muted">No public repositories found.</p>
+        ) : enriched.length === 0 && stale ? (
+          <div className="border border-dashed border-border-dim p-12 text-center">
+            <p className="text-sm text-muted">
+              Unable to load projects right now — GitHub&apos;s API didn&apos;t respond and
+              there&apos;s no cached data yet. Try refreshing in a moment.
+            </p>
+          </div>
+        ) : (
+          <Reveal>
+            <RepoExplorer repos={enriched} />
+          </Reveal>
+        )}
       </section>
     </div>
   );
