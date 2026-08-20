@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Space_Mono, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+// GT Planar (the real, paid Grilli Type face this system is built around)
+// isn't licensed here — using the fallback stack the design system itself
+// specifies: Space Grotesk for body through mid-display, Space Mono for the
+// largest display sizes, JetBrains Mono for tabular/data contexts.
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["300", "400", "500", "700"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
   subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -32,7 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${spaceMono.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Navbar />
