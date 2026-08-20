@@ -1,29 +1,59 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------
+   GT Planar system, adapted for a portfolio: cockpit-HUD aesthetic.
+   Null-black canvas, violet fill-only CTAs, wireframe borders instead
+   of shadows/elevation, zero radius on structure / full radius on
+   interactive pills. No gradients, no blur, no drop shadows anywhere.
+   --------------------------------------------------------------- */
+
 :root {
-  --background: #08080c;
-  --surface: #100f16;
-  --surface-2: #16151d;
-  --foreground: #f4f4f6;
-  --muted: #98979f;
-  --border: rgba(255, 255, 255, 0.09);
-  --accent: #7c5cff;
-  --accent-2: #22d3ee;
-  --accent-soft: rgba(124, 92, 255, 0.14);
+  /* Canvas + surfaces */
+  --background: #000000;
+  --surface: #000000; /* cards are flat black — the border does the work, not a lighter fill */
+  --surface-2: #1a0014; /* Plum Void — recessed wells: inputs, code/tag chips */
+  --surface-elevated: #29006c; /* Deep Indigo — rare elevated panel */
+
+  /* Text */
+  --foreground: #ffffff;
+  --muted: #949494;
+  --dim: #606060;
+
+  /* Structural line */
+  --border: #ffffff;
+  --border-dim: #606060;
+
+  /* Accent roles — deliberately NOT interchangeable, see globals below */
+  --accent-violet: #6100ff; /* filled CTA backgrounds only — never text */
+  --accent-violet-field: #7000ff; /* broad decorative wash */
+  --accent-yellow: #fcff76; /* default wireframe/border accent */
+  --accent-green: #00ff85; /* links, live/active state, emphasis text */
+  --accent-crimson: #ff003d; /* warning-only, never decorative */
+  --accent-amber: #ff8a00; /* data/tabular punctuation, used sparingly */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-elevated: var(--surface-elevated);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-dim: var(--dim);
   --color-border: var(--border);
-  --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
-  --color-accent-soft: var(--accent-soft);
+  --color-border-dim: var(--border-dim);
+  --color-accent: var(--accent-violet);
+  --color-accent-field: var(--accent-violet-field);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-green: var(--accent-green);
+  --color-accent-crimson: var(--accent-crimson);
+  --color-accent-amber: var(--accent-amber);
+
+  /* GT Planar substitute stack (real GT Planar is a paid Grilli Type face —
+     using the fallback family the design system itself specifies) */
   --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-inter);
+  --font-display-xl: var(--font-space-mono);
+  --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
 }
 
@@ -31,41 +61,87 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-weight: 300;
 }
 
 ::selection {
-  background: var(--accent);
-  color: white;
+  background: var(--accent-yellow);
+  color: #000000;
 }
 
-.gradient-text {
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* ---------- Border-as-architecture ----------
+   Structure comes from 1px solid white lines, drawn as box-shadow so they
+   overlay without adding to layout dimensions — never padding gaps, never
+   background-color differentiation, never a conventional border that
+   consumes box-sizing space unpredictably across nested elements. */
+
+.wireframe-divider {
+  box-shadow: 0 1px 0 0 var(--border);
 }
 
-.glow-border {
-  position: relative;
+.wireframe-divider-top {
+  box-shadow: 0 -1px 0 0 var(--border);
 }
 
-.glow-border::before {
-  content: "";
+.section-frame {
+  box-shadow:
+    1px 0 0 0 var(--border),
+    0 1px 0 0 var(--border);
+}
+
+.inset-frame {
+  box-shadow:
+    inset 1px 0 0 0 var(--border),
+    inset 0 1px 0 0 var(--border);
+}
+
+/* Emphasis text — solid color, never a gradient fill */
+.text-signal {
+  color: var(--accent-green);
+}
+
+/* Hyperspace hero streaks — flat white lines radiating from a vanishing
+   point, approximating the reference's procedural starfield without an
+   actual canvas animation. Subtle, static, low-opacity so type stays the
+   protagonist. */
+.hyperspace-field {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(120deg, var(--accent), transparent 40%, var(--accent-2));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+  overflow: hidden;
   pointer-events: none;
-  opacity: 0.5;
 }
 
-.noise-bg {
-  background-image: radial-gradient(circle at 15% 10%, rgba(124, 92, 255, 0.16), transparent 40%),
-    radial-gradient(circle at 85% 0%, rgba(34, 211, 238, 0.12), transparent 40%);
+.hyperspace-field::before,
+.hyperspace-field::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image: repeating-conic-gradient(
+    from 0deg at 50% 40%,
+    rgba(255, 255, 255, 0.05) 0deg 0.4deg,
+    transparent 0.4deg 6deg
+  );
+  animation: hyperspace-spin 90s linear infinite;
+}
+
+.hyperspace-field::after {
+  inset: -35%;
+  opacity: 0.5;
+  animation-duration: 140s;
+  animation-direction: reverse;
+}
+
+@keyframes hyperspace-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hyperspace-field::before,
+  .hyperspace-field::after {
+    animation: none;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -76,6 +152,5 @@ body {
 }
 ::-webkit-scrollbar-thumb {
   background: var(--surface-2);
-  border-radius: 999px;
-  border: 2px solid var(--background);
+  border: 1px solid var(--border-dim);
 }

@@ -75,34 +75,34 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
 
   return (
     <div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-[15px] sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <Search size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+          <Search size={14} className="pointer-events-none absolute left-[15px] top-1/2 -translate-y-1/2 text-muted" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search repositories..."
-            className="w-full rounded-full border border-border bg-surface py-2.5 pl-10 pr-4 text-sm outline-none transition-colors focus:border-accent/50"
+            className="w-full rounded-full border border-border-dim bg-surface-2 py-[10px] pl-[38px] pr-[15px] text-sm outline-none transition-colors focus:border-accent-yellow"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-muted">
+        <div className="flex flex-wrap items-center gap-[15px]">
+          <label className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.05em] text-muted">
             <input
               type="checkbox"
               checked={featuredOnly}
               onChange={(e) => setFeaturedOnly(e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-border accent-accent"
+              className="h-3.5 w-3.5 accent-accent"
             />
             Featured only
           </label>
 
-          <div className="flex items-center gap-1.5 text-xs text-muted">
+          <div className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-muted">
             <SlidersHorizontal size={13} />
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs outline-none"
+              className="border border-border-dim bg-surface-2 px-[10px] py-[5px] text-xs uppercase tracking-[0.05em] text-foreground outline-none"
             >
               <option value="updated">Recently updated</option>
               <option value="stars">Most stars</option>
@@ -113,13 +113,13 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
       </div>
 
       {categories.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-[15px] flex flex-wrap gap-[5px]">
           <button
             onClick={() => setActiveCategory(null)}
-            className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+            className={`rounded-full border px-[15px] py-[2px] font-mono text-[11px] uppercase tracking-[0.05em] transition-colors ${
               activeCategory === null
-                ? "border-accent/50 bg-accent-soft text-accent"
-                : "border-border text-muted hover:text-foreground"
+                ? "border-accent-yellow text-accent-yellow"
+                : "border-border-dim text-muted hover:text-foreground"
             }`}
           >
             All
@@ -128,10 +128,10 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
             <button
               key={c}
               onClick={() => setActiveCategory(c === activeCategory ? null : c)}
-              className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+              className={`rounded-full border px-[15px] py-[2px] font-mono text-[11px] uppercase tracking-[0.05em] transition-colors ${
                 activeCategory === c
-                  ? "border-accent/50 bg-accent-soft text-accent"
-                  : "border-border text-muted hover:text-foreground"
+                  ? "border-accent-yellow text-accent-yellow"
+                  : "border-border-dim text-muted hover:text-foreground"
               }`}
             >
               {c}
@@ -140,12 +140,12 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
         </div>
       )}
 
-      <p className="mt-6 text-xs text-muted">
+      <p className="mt-[25px] font-mono text-[11px] uppercase tracking-[0.05em] text-muted">
         {filtered.length} {filtered.length === 1 ? "repository" : "repositories"}
       </p>
 
       {filtered.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-border p-12 text-center">
+        <div className="mt-[15px] border border-dashed border-border-dim p-12 text-center">
           <p className="text-sm text-muted">No repositories match your filters.</p>
           <button
             onClick={() => {
@@ -153,13 +153,13 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
               setActiveCategory(null);
               setFeaturedOnly(false);
             }}
-            className="mt-3 text-sm text-accent hover:underline"
+            className="mt-3 font-mono text-xs uppercase tracking-[0.05em] text-accent-green hover:underline"
           >
             Clear filters
           </button>
         </div>
       ) : (
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-[15px] grid gap-[1px] bg-border-dim sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => (
             <RepoCard
               key={r.repo.id}

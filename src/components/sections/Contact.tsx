@@ -7,6 +7,9 @@ import { profile } from "@/lib/data";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+const inputClass =
+  "border border-border bg-surface-2 px-[10px] py-[10px] text-sm text-foreground outline-none placeholder:text-dim focus:border-accent-yellow";
+
 export default function Contact() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -40,36 +43,32 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="scroll-mt-24 px-6 py-24">
-      <div className="mx-auto max-w-3xl">
-        <Reveal className="text-center">
-          <p className="text-sm font-medium text-accent">Contact</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+    <section id="contact" className="wireframe-divider-top scroll-mt-24 px-6 py-[58px] md:px-10">
+      <div className="max-w-3xl">
+        <Reveal>
+          <p className="inline-block rounded-full border border-accent-green px-[10px] py-[2px] font-mono text-[11px] uppercase tracking-[0.1em] text-accent-green">
+            Contact
+          </p>
+          <h2 className="mt-[15px] font-display text-3xl font-medium tracking-[0.02em] sm:text-4xl">
             Let&apos;s build something worth shipping
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted">
+          <p className="mt-[15px] max-w-xl text-muted">
             Open to internships, research collaborations, and interesting full-stack or AI/ML
             problems. Drop a note below, or email me directly.
           </p>
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-10">
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="name" className="text-xs font-medium text-muted">
+        <Reveal delay={0.1} className="mt-[25px]">
+          <form onSubmit={handleSubmit} className="section-frame bg-black p-[15px] sm:p-[25px]">
+            <div className="grid gap-[15px] sm:grid-cols-2">
+              <div className="flex flex-col gap-[5px]">
+                <label htmlFor="name" className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
                   Name
                 </label>
-                <input
-                  id="name"
-                  name="name"
-                  required
-                  className="rounded-lg border border-border bg-surface-2 px-4 py-2.5 text-sm outline-none transition-colors focus:border-accent/50"
-                  placeholder="Your name"
-                />
+                <input id="name" name="name" required className={inputClass} placeholder="Your name" />
               </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="text-xs font-medium text-muted">
+              <div className="flex flex-col gap-[5px]">
+                <label htmlFor="email" className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
                   Email
                 </label>
                 <input
@@ -77,14 +76,14 @@ export default function Contact() {
                   name="email"
                   type="email"
                   required
-                  className="rounded-lg border border-border bg-surface-2 px-4 py-2.5 text-sm outline-none transition-colors focus:border-accent/50"
+                  className={inputClass}
                   placeholder="you@company.com"
                 />
               </div>
             </div>
 
-            <div className="mt-5 flex flex-col gap-2">
-              <label htmlFor="message" className="text-xs font-medium text-muted">
+            <div className="mt-[15px] flex flex-col gap-[5px]">
+              <label htmlFor="message" className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
                 Message
               </label>
               <textarea
@@ -92,38 +91,38 @@ export default function Contact() {
                 name="message"
                 required
                 rows={4}
-                className="resize-none rounded-lg border border-border bg-surface-2 px-4 py-2.5 text-sm outline-none transition-colors focus:border-accent/50"
+                className={`resize-none ${inputClass}`}
                 placeholder="What are you working on?"
               />
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <div className="mt-[25px] flex flex-wrap items-center justify-between gap-4">
               <a
                 href={`mailto:${profile.email}`}
-                className="inline-flex items-center gap-1.5 text-xs text-muted transition-colors hover:text-foreground"
+                className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-muted transition-colors hover:text-foreground"
               >
                 <Mail size={13} />
-                or email {profile.email} directly
+                or email directly
               </a>
 
               <button
                 type="submit"
                 disabled={status === "sending"}
-                className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-transform hover:scale-[1.03] disabled:opacity-60 disabled:hover:scale-100"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-[25px] py-[10px] font-mono text-xs uppercase tracking-[0.05em] text-white transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {status === "sending" ? "Sending..." : "Send message"}
-                <Send size={14} />
+                <Send size={13} />
               </button>
             </div>
 
             {status === "sent" && (
-              <p className="mt-4 flex items-center gap-2 text-sm text-emerald-400">
-                <CheckCircle2 size={15} /> Message sent — I&apos;ll get back to you soon.
+              <p className="mt-[15px] flex items-center gap-2 font-mono text-xs text-accent-green">
+                <CheckCircle2 size={14} /> Message sent — I&apos;ll get back to you soon.
               </p>
             )}
             {status === "error" && (
-              <p className="mt-4 flex items-center gap-2 text-sm text-red-400">
-                <AlertCircle size={15} /> {errorMsg}
+              <p className="mt-[15px] flex items-center gap-2 font-mono text-xs text-accent-crimson">
+                <AlertCircle size={14} /> {errorMsg}
               </p>
             )}
           </form>
