@@ -1,36 +1,40 @@
 import Reveal from "@/components/Reveal";
-import { skills } from "@/lib/data";
+import { getPublishedSkillGroups } from "@/lib/skillGroups";
 
-export default function Skills() {
+export default async function Skills() {
+  const skillGroups = await getPublishedSkillGroups();
+
+  if (skillGroups.length === 0) return null;
+
   return (
-    <section className="border-y border-border bg-surface/40 px-6 py-24">
-      <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <p className="text-sm font-medium text-accent">Skill Stack</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            The tools behind the work
-          </h2>
-        </Reveal>
+    <section className="wireframe-divider-top px-6 py-[58px] md:px-10">
+      <Reveal>
+        <p className="inline-block rounded-full border border-accent-green px-[10px] py-[2px] font-mono text-[11px] uppercase tracking-[0.1em] text-accent-green">
+          Skill Stack
+        </p>
+        <h2 className="mt-[15px] font-display text-3xl font-medium tracking-[0.02em] sm:text-4xl">
+          The tools behind the work
+        </h2>
+      </Reveal>
 
-        <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-          {skills.map((group, i) => (
-            <Reveal key={group.category} delay={i * 0.06}>
-              <h3 className="font-display text-sm font-semibold text-foreground">
-                {group.category}
-              </h3>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {group.items.map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-foreground"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </Reveal>
-          ))}
-        </div>
+      <div className="mt-[25px] grid gap-x-[25px] gap-y-[25px] sm:grid-cols-2 lg:grid-cols-3">
+        {skillGroups.map((group, i) => (
+          <Reveal key={group.id} delay={i * 0.05}>
+            <h3 className="font-mono text-[11px] uppercase tracking-[0.1em] text-accent-yellow">
+              {group.category}
+            </h3>
+            <div className="mt-[10px] flex flex-wrap gap-[5px]">
+              {group.items.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-border-dim px-[15px] py-[2px] text-xs text-muted transition-colors hover:border-foreground hover:text-foreground"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </Reveal>
+        ))}
       </div>
     </section>
   );
