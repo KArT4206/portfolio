@@ -18,6 +18,7 @@ export default function RepoCard({
   categories,
   featured,
   caseStudySlug,
+  index,
 }: {
   repo: GithubRepo;
   displayName: string;
@@ -25,12 +26,17 @@ export default function RepoCard({
   categories: string[];
   featured: boolean;
   caseStudySlug?: string;
+  index: number;
 }) {
+  const id = String(index + 1).padStart(3, "0");
   return (
     <div className="group flex h-full flex-col justify-between bg-black p-[15px] transition-colors hover:bg-surface-2">
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-[5px]">
+            <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-dim">
+              REPOSITORY / {id}
+            </span>
             {featured && (
               <span className="rounded-full border border-accent-yellow px-[10px] py-[2px] font-mono text-[11px] uppercase tracking-[0.05em] text-accent-yellow">
                 Featured
@@ -46,6 +52,7 @@ export default function RepoCard({
             href={repo.htmlUrl}
             target="_blank"
             rel="noreferrer"
+            data-cursor="VIEW"
             aria-label={`${displayName} on GitHub`}
             className="shrink-0 text-muted transition-colors hover:text-accent-yellow"
           >
@@ -96,6 +103,7 @@ export default function RepoCard({
             href={repo.htmlUrl}
             target="_blank"
             rel="noreferrer"
+            data-cursor="VIEW"
             className="inline-flex items-center gap-1.5 rounded-full border border-border-dim px-[15px] py-[5px] font-mono text-[11px] uppercase tracking-[0.05em] transition-colors hover:border-accent-yellow hover:text-accent-yellow"
           >
             <GithubIcon width={12} height={12} /> Code
@@ -105,6 +113,7 @@ export default function RepoCard({
               href={repo.homepage}
               target="_blank"
               rel="noreferrer"
+              data-cursor="VIEW"
               className="inline-flex items-center gap-1.5 rounded-full border border-border-dim px-[15px] py-[5px] font-mono text-[11px] uppercase tracking-[0.05em] transition-colors hover:border-accent-yellow hover:text-accent-yellow"
             >
               <ExternalLink size={12} /> Live demo
@@ -113,6 +122,7 @@ export default function RepoCard({
           {caseStudySlug && (
             <Link
               href={`/projects/${caseStudySlug}`}
+              data-cursor="READ"
               className="group/cs inline-flex items-center gap-1.5 rounded-full bg-accent px-[15px] py-[5px] font-mono text-[11px] uppercase tracking-[0.05em] text-white transition-opacity hover:opacity-90"
             >
               <BookOpen size={12} /> Case study

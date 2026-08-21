@@ -1,15 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import RepoCard from "@/components/github/RepoCard";
 import type { GithubRepo } from "@/lib/github";
-import { customProjectOrder } from "@/lib/repoConfig";
-
-function featuredRank(repoName: string): number {
-  const idx = customProjectOrder.indexOf(repoName);
-  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
-}
 
 export type EnrichedRepo = {
   repo: GithubRepo;
@@ -22,7 +16,21 @@ export type EnrichedRepo = {
 
 type SortKey = "updated" | "stars" | "alphabetical";
 
-export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
+export default function RepoExplorer({
+  repos,
+  customOrder = [],
+}: {
+  repos: EnrichedRepo[];
+  customOrder?: string[];
+}) {
+  const featuredRank = useCallback(
+    (repoName: string): number => {
+      const idx = customOrder.indexOf(repoName);
+      return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+    },
+    [customOrder]
+  );
+
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>("updated");
@@ -61,7 +69,7 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
     });
 
     // Featured repos always float to the top. Among featured repos, honor the curated
-    // customProjectOrder rather than whatever the active sort dropdown picked — that's
+    // customOrder rather than whatever the active sort dropdown picked — that's
     // the whole point of marking something featured. Non-featured repos keep the order
     // the chosen sort just produced (stable sort preserves it).
     result.sort((a, b) => {
@@ -71,7 +79,7 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
     });
 
     return result;
-  }, [repos, query, activeCategory, sort, featuredOnly]);
+  }, [repos, query, activeCategory, sort, featuredOnly, featuredRank]);
 
   return (
     <div>
@@ -160,7 +168,7 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
         </div>
       ) : (
         <div className="mt-[15px] grid gap-[1px] bg-border-dim sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((r) => (
+          {filtered.map((r, i) => (
             <RepoCard
               key={r.repo.id}
               repo={r.repo}
@@ -169,6 +177,7 @@ export default function RepoExplorer({ repos }: { repos: EnrichedRepo[] }) {
               categories={r.categories}
               featured={r.featured}
               caseStudySlug={r.caseStudySlug}
+              index={i}
             />
           ))}
         </div>

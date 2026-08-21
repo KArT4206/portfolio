@@ -34,7 +34,7 @@ export default function LoginForm() {
       <div className="mt-6 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <label htmlFor="username" className="text-xs font-medium text-muted">
-            Username
+            Email
           </label>
           <input
             id="username"

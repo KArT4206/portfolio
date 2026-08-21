@@ -5,6 +5,12 @@ import { ArrowLeft, ArrowUpRight, ArrowRight, FileText } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import { getPublishedProjectBySlug, getPublishedProjects, getAllPublishedSlugs } from "@/lib/projects";
 
+function attachmentTag(mimeType: string): string {
+  if (mimeType === "application/pdf") return "PDF";
+  if (mimeType.startsWith("image/")) return "IMG";
+  return "DOC";
+}
+
 export async function generateStaticParams() {
   const slugs = await getAllPublishedSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -49,7 +55,11 @@ export default async function ProjectPage({
               <ArrowLeft size={13} /> Back to work
             </Link>
 
-            <div className="mt-[25px] flex flex-wrap items-center gap-[5px]">
+            <p className="mt-[15px] font-mono text-[11px] uppercase tracking-[0.1em] text-dim">
+              PROJECT / {String(currentIndex + 1).padStart(3, "0")}
+            </p>
+
+            <div className="mt-[10px] flex flex-wrap items-center gap-[5px]">
               {project.category.map((c) => (
                 <span
                   key={c}
@@ -151,9 +161,14 @@ export default async function ProjectPage({
                     href={a.url}
                     target="_blank"
                     rel="noreferrer"
+                    data-cursor={a.label.toLowerCase().includes("certificate") ? "VERIFY" : "OPEN"}
                     className="inline-flex items-center gap-2 rounded-full border border-border-dim px-[15px] py-[10px] text-sm transition-colors hover:border-accent-yellow hover:text-accent-yellow"
                   >
-                    <FileText size={14} /> {a.label}
+                    <FileText size={14} />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-accent-yellow">
+                      [{attachmentTag(a.mimeType)}]
+                    </span>
+                    {a.label}
                   </a>
                 ))}
               </div>
