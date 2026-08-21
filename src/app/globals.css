@@ -1,29 +1,59 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------
+   GT Planar system, adapted for a portfolio: cockpit-HUD aesthetic.
+   Null-black canvas, violet fill-only CTAs, wireframe borders instead
+   of shadows/elevation, zero radius on structure / full radius on
+   interactive pills. No gradients, no blur, no drop shadows anywhere.
+   --------------------------------------------------------------- */
+
 :root {
-  --background: #08080c;
-  --surface: #100f16;
-  --surface-2: #16151d;
-  --foreground: #f4f4f6;
-  --muted: #98979f;
-  --border: rgba(255, 255, 255, 0.09);
-  --accent: #7c5cff;
-  --accent-2: #22d3ee;
-  --accent-soft: rgba(124, 92, 255, 0.14);
+  /* Canvas + surfaces */
+  --background: #000000;
+  --surface: #000000; /* cards are flat black — the border does the work, not a lighter fill */
+  --surface-2: #1a0014; /* Plum Void — recessed wells: inputs, code/tag chips */
+  --surface-elevated: #29006c; /* Deep Indigo — rare elevated panel */
+
+  /* Text */
+  --foreground: #ffffff;
+  --muted: #949494;
+  --dim: #606060;
+
+  /* Structural line */
+  --border: #ffffff;
+  --border-dim: #606060;
+
+  /* Accent roles — deliberately NOT interchangeable, see globals below */
+  --accent-violet: #6100ff; /* filled CTA backgrounds only — never text */
+  --accent-violet-field: #7000ff; /* broad decorative wash */
+  --accent-yellow: #fcff76; /* default wireframe/border accent */
+  --accent-green: #00ff85; /* links, live/active state, emphasis text */
+  --accent-crimson: #ff003d; /* warning-only, never decorative */
+  --accent-amber: #ff8a00; /* data/tabular punctuation, used sparingly */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-elevated: var(--surface-elevated);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-dim: var(--dim);
   --color-border: var(--border);
-  --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
-  --color-accent-soft: var(--accent-soft);
+  --color-border-dim: var(--border-dim);
+  --color-accent: var(--accent-violet);
+  --color-accent-field: var(--accent-violet-field);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-green: var(--accent-green);
+  --color-accent-crimson: var(--accent-crimson);
+  --color-accent-amber: var(--accent-amber);
+
+  /* GT Planar substitute stack (real GT Planar is a paid Grilli Type face —
+     using the fallback family the design system itself specifies) */
   --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-inter);
+  --font-display-xl: var(--font-space-mono);
+  --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
 }
 
@@ -31,41 +61,87 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-weight: 300;
 }
 
 ::selection {
-  background: var(--accent);
-  color: white;
+  background: var(--accent-yellow);
+  color: #000000;
 }
 
-.gradient-text {
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* ---------- Border-as-architecture ----------
+   Structure comes from 1px solid white lines, drawn as box-shadow so they
+   overlay without adding to layout dimensions — never padding gaps, never
+   background-color differentiation, never a conventional border that
+   consumes box-sizing space unpredictably across nested elements. */
+
+.wireframe-divider {
+  box-shadow: 0 1px 0 0 var(--border);
 }
 
-.glow-border {
-  position: relative;
+.wireframe-divider-top {
+  box-shadow: 0 -1px 0 0 var(--border);
 }
 
-.glow-border::before {
-  content: "";
+.section-frame {
+  box-shadow:
+    1px 0 0 0 var(--border),
+    0 1px 0 0 var(--border);
+}
+
+.inset-frame {
+  box-shadow:
+    inset 1px 0 0 0 var(--border),
+    inset 0 1px 0 0 var(--border);
+}
+
+/* Emphasis text — solid color, never a gradient fill */
+.text-signal {
+  color: var(--accent-green);
+}
+
+/* Hyperspace hero streaks — flat white lines radiating from a vanishing
+   point, approximating the reference's procedural starfield without an
+   actual canvas animation. Subtle, static, low-opacity so type stays the
+   protagonist. */
+.hyperspace-field {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(120deg, var(--accent), transparent 40%, var(--accent-2));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+  overflow: hidden;
   pointer-events: none;
-  opacity: 0.5;
 }
 
-.noise-bg {
-  background-image: radial-gradient(circle at 15% 10%, rgba(124, 92, 255, 0.16), transparent 40%),
-    radial-gradient(circle at 85% 0%, rgba(34, 211, 238, 0.12), transparent 40%);
+.hyperspace-field::before,
+.hyperspace-field::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image: repeating-conic-gradient(
+    from 0deg at 50% 40%,
+    rgba(255, 255, 255, 0.05) 0deg 0.4deg,
+    transparent 0.4deg 6deg
+  );
+  animation: hyperspace-spin 90s linear infinite;
+}
+
+.hyperspace-field::after {
+  inset: -35%;
+  opacity: 0.5;
+  animation-duration: 140s;
+  animation-direction: reverse;
+}
+
+@keyframes hyperspace-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hyperspace-field::before,
+  .hyperspace-field::after {
+    animation: none;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -76,6 +152,319 @@ body {
 }
 ::-webkit-scrollbar-thumb {
   background: var(--surface-2);
-  border-radius: 999px;
-  border: 2px solid var(--background);
+  border: 1px solid var(--border-dim);
+}
+
+/* ---------- HUD cursor ----------
+   Desktop-only custom crosshair; native cursor hidden on the html root and
+   restored automatically wherever the custom cursor component isn't mounted
+   (mobile / touch), since we only add hud-cursor-active from JS after
+   confirming a fine pointer exists. */
+html.hud-cursor-active,
+html.hud-cursor-active * {
+  cursor: none !important;
+}
+
+.hud-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hud-cursor__crosshair {
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+  filter: drop-shadow(0 0 3px rgba(252, 255, 118, 0.9)) drop-shadow(0 0 1px #000);
+}
+
+.hud-cursor__label {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #000000;
+  background: var(--accent-yellow);
+  padding: 2px 6px;
+  z-index: 9999;
+}
+
+/* ---------- Scan line ----------
+   A thin horizontal sweep, not a glowing beam — a single 1px hairline at
+   low opacity, traversing the viewport slowly and infrequently. */
+.hud-scanline {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--accent-green);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 40;
+  animation: hud-scanline-sweep 9s linear infinite;
+}
+
+@keyframes hud-scanline-sweep {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.35;
+  }
+  46% {
+    opacity: 0.35;
+  }
+  50% {
+    top: 100%;
+    opacity: 0;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-scanline {
+    display: none;
+  }
+}
+
+/* ---------- Boot sequence ---------- */
+.hud-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+}
+
+.hud-boot__line {
+  opacity: 0;
+  animation: hud-boot-line-in 0.15s linear forwards;
+}
+
+@keyframes hud-boot-line-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-boot__line {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- Pilot status gauges ----------
+   A playful, honestly-labeled "for fun" widget (inspired by the pilot-stat
+   HUD gauge on the GT Planar reference site, rebuilt from scratch with our
+   own tokens/timings — no reference assets or CSS were copied). Each bar
+   steps between hand-picked widths on a staggered loop, like an idling
+   instrument rather than a real sensor. */
+.pilot-stat-track {
+  position: relative;
+  height: 14px;
+  border: 1px solid var(--accent-green);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--border-dim) 0,
+    var(--border-dim) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  overflow: hidden;
+}
+
+.pilot-stat-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-green);
+  animation-duration: 22s;
+  animation-timing-function: steps(7, end);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* Static, real-value variant of the gauge fill — for HudGauge, where width
+   reflects an actual measured count rather than an idling animation. */
+.pilot-stat-fill-static {
+  position: relative;
+  transition: width 0.4s linear;
+}
+
+.pilot-stat-fill--focus {
+  animation-name: pilot-stat-focus;
+}
+@keyframes pilot-stat-focus {
+  0% { width: 55%; }
+  20% { width: 25%; }
+  45% { width: 70%; }
+  70% { width: 40%; }
+  100% { width: 85%; }
+}
+
+.pilot-stat-fill--caffeine {
+  animation-name: pilot-stat-caffeine;
+}
+@keyframes pilot-stat-caffeine {
+  0% { width: 90%; }
+  25% { width: 60%; }
+  50% { width: 100%; }
+  75% { width: 35%; }
+  100% { width: 80%; }
+}
+
+.pilot-stat-fill--curiosity {
+  animation-name: pilot-stat-curiosity;
+}
+@keyframes pilot-stat-curiosity {
+  0% { width: 70%; }
+  30% { width: 95%; }
+  55% { width: 50%; }
+  80% { width: 75%; }
+  100% { width: 60%; }
+}
+
+.pilot-stat-fill--debug-streak {
+  animation-name: pilot-stat-debug;
+}
+@keyframes pilot-stat-debug {
+  0% { width: 40%; }
+  35% { width: 65%; }
+  60% { width: 20%; }
+  85% { width: 90%; }
+  100% { width: 50%; }
+}
+
+.pilot-stat-fill--chill {
+  animation-name: pilot-stat-chill;
+}
+@keyframes pilot-stat-chill {
+  0% { width: 80%; }
+  20% { width: 45%; }
+  50% { width: 65%; }
+  75% { width: 30%; }
+  100% { width: 70%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pilot-stat-fill {
+    animation: none;
+    width: 65% !important;
+  }
+}
+
+/* ---------- Warp jump ----------
+   A short, punchy "jump to hyperspace" transition for the warp-jump easter
+   egg — radiating streaks flash and burst outward from center, then it's
+   gone. Built from scratch (conic-gradient + scale), not a copied asset;
+   nothing here blocks interaction once it's done, and it's skipped
+   entirely under reduced motion. */
+.warp-jump-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, #000000 85%);
+}
+
+.warp-jump-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background-image: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    var(--accent-yellow) 0deg 0.3deg,
+    transparent 0.3deg 4deg
+  );
+}
+
+.warp-jump-overlay.warp-jump-active {
+  animation: warp-jump-burst 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+.warp-jump-overlay.warp-jump-active::before {
+  animation: warp-jump-spin 0.6s linear forwards;
+}
+
+@keyframes warp-jump-burst {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(2.6);
+  }
+}
+
+@keyframes warp-jump-spin {
+  to {
+    transform: rotate(140deg) scale(1.6);
+  }
+}
+
+/* ---------- Secret mode (konami easter egg) ----------
+   A harmless decorative palette shift — hue-rotated + slightly boosted
+   contrast — toggled by the konami code in EasterEggs.tsx. Nothing here
+   is required for normal use of the site. */
+html.hud-secret-mode body {
+  filter: hue-rotate(140deg) saturate(1.3);
+  transition: filter 0.4s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.hud-secret-mode body {
+    transition: none;
+  }
+}
+
+/* ---------- HUD module dots ---------- */
+.hud-module-dot {
+  height: 5px;
+  width: 5px;
+  border-radius: 9999px;
+  display: inline-block;
+  background: var(--accent-green);
+}
+
+/* Blinking telemetry dot — used for "live" / real-time indicators only */
+.hud-live-dot {
+  animation: hud-live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hud-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-live-dot {
+    animation: none;
+  }
 }

@@ -16,12 +16,16 @@ datasource db {
 // ---------- Auth ----------
 
 model AdminUser {
-  id           String    @id @default(cuid())
-  username     String    @unique
-  passwordHash String
-  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
-  lastLoginAt  DateTime? @db.Timestamptz(3)
+  id                 String    @id @default(cuid())
+  username           String    @unique
+  passwordHash       String
+  // True for a freshly-seeded account with a known temporary password —
+  // the protected layout redirects everywhere else to /admin/change-password
+  // until this is cleared, so the temporary credential can't linger in use.
+  mustChangePassword Boolean   @default(false)
+  createdAt          DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(3)
+  lastLoginAt        DateTime? @db.Timestamptz(3)
 
   sessions   AdminSession[]
   auditLogs  AuditLog[]
@@ -77,8 +81,14 @@ model Media {
   uploadedById String?
   uploadedBy   AdminUser? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
 
-  projectAttachments ProjectAttachment[]
-  projectCoverOf     Project[]           @relation("ProjectCoverImage")
+  projectAttachments     ProjectAttachment[]
+  projectCoverOf         Project[]               @relation("ProjectCoverImage")
+  researchAttachments    ResearchAttachment[]
+  awardCertificateOf     Award[]                 @relation("AwardCertificate")
+  certificationCertOf    Certification[]         @relation("CertificationCertificate")
+  publicationAttachments PublicationAttachment[]
+  profileImageOf         Profile[]               @relation("ProfileImage")
+  resumeOf               Resume[]
 
   @@index([sha256])
 }
@@ -165,6 +175,285 @@ model ProjectAttachment {
   @@index([projectId, displayOrder])
 }
 
+// ---------- Research ----------
+
+enum ResearchStatus {
+  DRAFT
+  IN_REVIEW
+  PRESENTED
+  PUBLISHED
+}
+
+model Research {
+  id           String         @id @default(cuid())
+  title        String
+  description  String?
+  authors      String[]
+  conference   String?
+  status       ResearchStatus @default(PUBLISHED)
+  year         Int?
+  doi          String?
+  paperUrl     String?
+  // Array of { label: string, value: string } instrument readouts — same
+  // small, display-only, always-rewritten-as-a-whole-set shape as
+  // Project.results, so it gets the same JSON-not-a-table treatment.
+  metrics      Json?
+  featured     Boolean        @default(false)
+  published    Boolean        @default(false)
+  displayOrder Int            @default(0)
+
+  attachments ResearchAttachment[]
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([published, deletedAt, displayOrder])
+  @@index([featured])
+}
+
+model ResearchAttachment {
+  id           String               @id @default(cuid())
+  researchId   String
+  research     Research             @relation(fields: [researchId], references: [id], onDelete: Cascade)
+  mediaId      String
+  media        Media                @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  label        String
+  description  String?
+  visibility   AttachmentVisibility @default(PUBLIC)
+  displayOrder Int                  @default(0)
+  createdAt    DateTime             @default(now()) @db.Timestamptz(3)
+
+  @@index([researchId, displayOrder])
+}
+
+// ---------- Publications ----------
+
+enum PublicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+  PUBLISHED
+}
+
+model Publication {
+  id              String            @id @default(cuid())
+  title           String
+  authors         String[]
+  journal         String?
+  publicationDate DateTime?         @db.Timestamptz(3)
+  doi             String?
+  url             String?
+  status          PublicationStatus @default(DRAFT)
+  abstract        String?
+  keywords        String[]
+  featured        Boolean           @default(false)
+  published       Boolean           @default(false)
+  displayOrder    Int               @default(0)
+
+  attachments PublicationAttachment[]
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([published, deletedAt, displayOrder])
+  @@index([featured])
+}
+
+model PublicationAttachment {
+  id            String               @id @default(cuid())
+  publicationId String
+  publication   Publication          @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  mediaId       String
+  media         Media                @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  label         String
+  description   String?
+  visibility    AttachmentVisibility @default(PUBLIC)
+  displayOrder  Int                  @default(0)
+  createdAt     DateTime             @default(now()) @db.Timestamptz(3)
+
+  @@index([publicationId, displayOrder])
+}
+
+// ---------- Awards ----------
+
+model Award {
+  id           String  @id @default(cuid())
+  title        String
+  organization String?
+  detail       String?
+  year         Int?
+
+  // Either an uploaded certificate file, an external certificate URL, or
+  // neither — the public site only ever shows a "[ VIEW CERTIFICATE ]"
+  // action when one of these is actually set, never as a placeholder.
+  certificateMediaId String?
+  certificateMedia   Media?  @relation("AwardCertificate", fields: [certificateMediaId], references: [id], onDelete: SetNull)
+  certificateUrl     String?
+
+  featured     Boolean @default(false)
+  published    Boolean @default(false)
+  displayOrder Int     @default(0)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([published, deletedAt, displayOrder])
+}
+
+// ---------- Certifications ----------
+
+model Certification {
+  id            String    @id @default(cuid())
+  name          String
+  issuer        String
+  credentialId  String?
+  credentialUrl String?
+  description   String?
+  issueDate     DateTime? @db.Timestamptz(3)
+  expiresDate   DateTime? @db.Timestamptz(3) // null = does not expire
+
+  // Same file-or-link pattern as Award.certificate* — the public site only
+  // ever shows a certificate action once one of these is actually set.
+  certificateMediaId String?
+  certificateMedia   Media?  @relation("CertificationCertificate", fields: [certificateMediaId], references: [id], onDelete: SetNull)
+
+  published    Boolean @default(false)
+  displayOrder Int     @default(0)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([published, deletedAt, displayOrder])
+}
+
+// ---------- Experience ----------
+
+model Experience {
+  id        String    @id @default(cuid())
+  org       String
+  role      String
+  location  String?
+  startDate DateTime? @db.Timestamptz(3)
+  endDate   DateTime? @db.Timestamptz(3) // null = present
+  bullets   String[]
+
+  published    Boolean @default(false)
+  displayOrder Int     @default(0)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([published, deletedAt, displayOrder])
+}
+
+// ---------- Education ----------
+
+model Education {
+  id         String    @id @default(cuid())
+  school     String
+  degree     String
+  location   String?
+  startDate  DateTime? @db.Timestamptz(3)
+  endDate    DateTime? @db.Timestamptz(3) // null = ongoing / expected
+  coursework String[]
+
+  published    Boolean @default(false)
+  displayOrder Int     @default(0)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([published, deletedAt, displayOrder])
+}
+
+// ---------- Skills ----------
+
+model SkillGroup {
+  id       String   @id @default(cuid())
+  category String
+  items    String[]
+
+  published    Boolean @default(false)
+  displayOrder Int     @default(0)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([published, deletedAt, displayOrder])
+}
+
+// ---------- Site Settings ----------
+
+// Singleton row (always id "singleton") — feature flags for the optional
+// fun/easter-egg layer, editable from Admin -> Site Settings so any of it
+// can be switched off without a code change.
+model SiteSetting {
+  id                       String   @id @default("singleton")
+  funModeEnabled           Boolean  @default(true)
+  matrixInteractionEnabled Boolean  @default(true)
+  ghostEnabled             Boolean  @default(true)
+  arcadeEnabled            Boolean  @default(true)
+  robotEnabled             Boolean  @default(true)
+  explorerEnabled          Boolean  @default(true)
+  terminalEnabled          Boolean  @default(true)
+  idleEventsEnabled        Boolean  @default(true)
+  soundDefaultOn           Boolean  @default(false)
+  maxWarpEnabled           Boolean  @default(true)
+  updatedAt                DateTime @updatedAt @db.Timestamptz(3)
+}
+
+// ---------- Resume ----------
+
+model Resume {
+  id          String  @id @default(cuid())
+  // Either an uploaded file or an external URL — the same file-or-link
+  // pattern used by Award/Certification certificates.
+  mediaId     String?
+  media       Media?  @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  externalUrl String?
+  label       String? // e.g. "Resume — Aug 2026"
+  // Only one Resume should be active at a time; enforced in the save
+  // action (unset any other active row), not at the schema level, since
+  // Postgres has no simple "at most one true" constraint.
+  isActive    Boolean @default(false)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  @@index([isActive, deletedAt])
+}
+
+// ---------- Contact ----------
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+model ContactMessage {
+  id        String               @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  createdAt DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime             @updatedAt @db.Timestamptz(3)
+
+  @@index([status, createdAt])
+}
+
 // ---------- Audit ----------
 
 enum AuditResult {
@@ -186,4 +475,47 @@ model AuditLog {
 
   @@index([createdAt])
   @@index([actorId])
+}
+
+// ---------- Profile ----------
+
+// Singleton row (id="singleton") — the admin-editable version of the
+// hand-authored `profile` object in src/lib/data.ts.
+model Profile {
+  id          String   @id @default("singleton")
+  name        String
+  initials    String
+  tagline     String
+  location    String
+  email       String
+  githubUrl   String
+  linkedinUrl String
+  summary     String
+  heroLines   String[]
+
+  profileImageId String?
+  profileImage   Media?  @relation("ProfileImage", fields: [profileImageId], references: [id], onDelete: SetNull)
+
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+
+// ---------- GitHub presentation ----------
+
+// Admin-editable presentation metadata for a live GitHub repo, keyed by the
+// repo's exact `name` (case-sensitive) — mirrors src/lib/repoConfig.ts,
+// which this replaces as the live source. GitHub itself remains the source
+// of truth for the repo's actual data (stars, description, language, ...);
+// rows here only ever change how that data is labeled/ordered/filtered.
+// Created on demand (only repos an admin has actually customized get a
+// row) rather than one row per repo up front.
+model GithubRepoOverride {
+  id            String   @id @default(cuid())
+  repoName      String   @unique
+  alias         String?
+  categories    String[]
+  featured      Boolean  @default(false)
+  hidden        Boolean  @default(false)
+  displayOrder  Int?
+  caseStudySlug String?
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
 }

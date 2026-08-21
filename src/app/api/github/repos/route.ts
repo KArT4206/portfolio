@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchGithubRepos } from "@/lib/github";
-import { hiddenRepositories } from "@/lib/repoConfig";
+import { getGithubPresentation } from "@/lib/githubPresentation";
 
 /**
  * Public, cached view of this site's GitHub repos. The homepage's server
@@ -10,8 +10,8 @@ import { hiddenRepositories } from "@/lib/repoConfig";
  * in the webhook route has something externally visible to invalidate.
  */
 export async function GET() {
-  const { repos, stale, error } = await fetchGithubRepos();
-  const visible = repos.filter((r) => !hiddenRepositories.includes(r.name));
+  const [{ repos, stale, error }, presentation] = await Promise.all([fetchGithubRepos(), getGithubPresentation()]);
+  const visible = repos.filter((r) => !presentation.hiddenRepositories.includes(r.name));
 
   return NextResponse.json(
     { repos: visible, stale, error: error ?? null, count: visible.length },
