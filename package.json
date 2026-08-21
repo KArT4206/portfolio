@@ -10,7 +10,10 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "db:seed:projects": "tsx prisma/seed-projects.ts"
+    "db:seed:projects": "tsx prisma/seed-projects.ts",
+    "db:seed:content": "tsx prisma/seed-research-awards-experience.ts",
+    "db:seed:content2": "tsx prisma/seed-education-and-skills.ts",
+    "db:seed:github": "tsx prisma/seed-github-overrides.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
