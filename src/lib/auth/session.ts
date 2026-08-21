@@ -52,7 +52,7 @@ export async function clearSessionCookie() {
 
 export type CurrentAdmin = {
   sessionId: string;
-  user: { id: string; username: string };
+  user: { id: string; username: string; mustChangePassword: boolean };
 };
 
 /**
@@ -71,7 +71,7 @@ export async function getCurrentAdmin(): Promise<CurrentAdmin | null> {
 
   const session = await prisma.adminSession.findUnique({
     where: { tokenHash: hashToken(raw) },
-    include: { user: { select: { id: true, username: true } } },
+    include: { user: { select: { id: true, username: true, mustChangePassword: true } } },
   });
 
   if (!session) return null;

@@ -1,7 +1,11 @@
 import Reveal from "@/components/Reveal";
-import { skills } from "@/lib/data";
+import { getPublishedSkillGroups } from "@/lib/skillGroups";
 
-export default function Skills() {
+export default async function Skills() {
+  const skillGroups = await getPublishedSkillGroups();
+
+  if (skillGroups.length === 0) return null;
+
   return (
     <section className="wireframe-divider-top px-6 py-[58px] md:px-10">
       <Reveal>
@@ -14,8 +18,8 @@ export default function Skills() {
       </Reveal>
 
       <div className="mt-[25px] grid gap-x-[25px] gap-y-[25px] sm:grid-cols-2 lg:grid-cols-3">
-        {skills.map((group, i) => (
-          <Reveal key={group.category} delay={i * 0.05}>
+        {skillGroups.map((group, i) => (
+          <Reveal key={group.id} delay={i * 0.05}>
             <h3 className="font-mono text-[11px] uppercase tracking-[0.1em] text-accent-yellow">
               {group.category}
             </h3>
