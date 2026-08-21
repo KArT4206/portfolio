@@ -13,7 +13,7 @@ export default async function FeaturedWork() {
       <Reveal className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="inline-block rounded-full border border-accent-green px-[10px] py-[2px] font-mono text-[11px] uppercase tracking-[0.1em] text-accent-green">
-            Selected Work
+            01 / Selected Work
           </p>
           <h2 className="mt-[15px] font-display text-3xl font-medium tracking-[0.02em] sm:text-4xl">
             Things I&apos;ve built &amp; researched
@@ -31,7 +31,7 @@ export default async function FeaturedWork() {
       <div className="mt-[25px] grid gap-[1px] bg-border-dim sm:grid-cols-2 lg:grid-cols-3">
         {featuredProjects.map((project, i) => (
           <Reveal key={project.slug} delay={i * 0.06}>
-            <ProjectCard project={project} />
+            <ProjectCard project={project} index={i} />
           </Reveal>
         ))}
       </div>

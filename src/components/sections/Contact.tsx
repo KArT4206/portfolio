@@ -3,14 +3,13 @@
 import { useState, type FormEvent } from "react";
 import { Mail, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import Reveal from "@/components/Reveal";
-import { profile } from "@/lib/data";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
 const inputClass =
   "border border-border bg-surface-2 px-[10px] py-[10px] text-sm text-foreground outline-none placeholder:text-dim focus:border-accent-yellow";
 
-export default function Contact() {
+export default function Contact({ email }: { email: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -23,6 +22,7 @@ export default function Contact() {
     const data = {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
       email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      subject: (form.elements.namedItem("subject") as HTMLInputElement).value,
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
     };
 
@@ -47,19 +47,28 @@ export default function Contact() {
       <div className="max-w-3xl">
         <Reveal>
           <p className="inline-block rounded-full border border-accent-green px-[10px] py-[2px] font-mono text-[11px] uppercase tracking-[0.1em] text-accent-green">
-            Contact
+            04 / Transmission Channel
           </p>
           <h2 className="mt-[15px] font-display text-3xl font-medium tracking-[0.02em] sm:text-4xl">
             Let&apos;s build something worth shipping
           </h2>
           <p className="mt-[15px] max-w-xl text-muted">
             Open to internships, research collaborations, and interesting full-stack or AI/ML
-            problems. Drop a note below, or email me directly.
+            problems. Open the channel below, or email me directly.
           </p>
         </Reveal>
 
         <Reveal delay={0.1} className="mt-[25px]">
           <form onSubmit={handleSubmit} className="section-frame bg-black p-[15px] sm:p-[25px]">
+            <p className="mb-[15px] font-mono text-[11px] uppercase tracking-[0.1em] text-dim">
+              {status === "sent"
+                ? "LINK STATUS: TRANSMITTED"
+                : status === "sending"
+                ? "LINK STATUS: TRANSMITTING..."
+                : status === "error"
+                ? "LINK STATUS: FAILED"
+                : "LINK STATUS: STANDBY"}
+            </p>
             <div className="grid gap-[15px] sm:grid-cols-2">
               <div className="flex flex-col gap-[5px]">
                 <label htmlFor="name" className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
@@ -83,6 +92,13 @@ export default function Contact() {
             </div>
 
             <div className="mt-[15px] flex flex-col gap-[5px]">
+              <label htmlFor="subject" className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
+                Subject
+              </label>
+              <input id="subject" name="subject" className={inputClass} placeholder="What's this about?" />
+            </div>
+
+            <div className="mt-[15px] flex flex-col gap-[5px]">
               <label htmlFor="message" className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
                 Message
               </label>
@@ -98,7 +114,7 @@ export default function Contact() {
 
             <div className="mt-[25px] flex flex-wrap items-center justify-between gap-4">
               <a
-                href={`mailto:${profile.email}`}
+                href={`mailto:${email}`}
                 className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-muted transition-colors hover:text-foreground"
               >
                 <Mail size={13} />
@@ -108,16 +124,17 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={status === "sending"}
+                data-cursor="TRANSMIT"
                 className="inline-flex items-center gap-2 rounded-full bg-accent px-[25px] py-[10px] font-mono text-xs uppercase tracking-[0.05em] text-white transition-opacity hover:opacity-90 disabled:opacity-60"
               >
-                {status === "sending" ? "Sending..." : "Send message"}
+                {status === "sending" ? "Transmitting..." : "Transmit"}
                 <Send size={13} />
               </button>
             </div>
 
             {status === "sent" && (
               <p className="mt-[15px] flex items-center gap-2 font-mono text-xs text-accent-green">
-                <CheckCircle2 size={14} /> Message sent — I&apos;ll get back to you soon.
+                <CheckCircle2 size={14} /> Transmitted — I&apos;ll get back to you soon.
               </p>
             )}
             {status === "error" && (

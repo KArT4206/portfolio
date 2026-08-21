@@ -154,3 +154,317 @@ body {
   background: var(--surface-2);
   border: 1px solid var(--border-dim);
 }
+
+/* ---------- HUD cursor ----------
+   Desktop-only custom crosshair; native cursor hidden on the html root and
+   restored automatically wherever the custom cursor component isn't mounted
+   (mobile / touch), since we only add hud-cursor-active from JS after
+   confirming a fine pointer exists. */
+html.hud-cursor-active,
+html.hud-cursor-active * {
+  cursor: none !important;
+}
+
+.hud-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hud-cursor__crosshair {
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+  filter: drop-shadow(0 0 3px rgba(252, 255, 118, 0.9)) drop-shadow(0 0 1px #000);
+}
+
+.hud-cursor__label {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #000000;
+  background: var(--accent-yellow);
+  padding: 2px 6px;
+  z-index: 9999;
+}
+
+/* ---------- Scan line ----------
+   A thin horizontal sweep, not a glowing beam — a single 1px hairline at
+   low opacity, traversing the viewport slowly and infrequently. */
+.hud-scanline {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--accent-green);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 40;
+  animation: hud-scanline-sweep 9s linear infinite;
+}
+
+@keyframes hud-scanline-sweep {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.35;
+  }
+  46% {
+    opacity: 0.35;
+  }
+  50% {
+    top: 100%;
+    opacity: 0;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-scanline {
+    display: none;
+  }
+}
+
+/* ---------- Boot sequence ---------- */
+.hud-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+}
+
+.hud-boot__line {
+  opacity: 0;
+  animation: hud-boot-line-in 0.15s linear forwards;
+}
+
+@keyframes hud-boot-line-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-boot__line {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- Pilot status gauges ----------
+   A playful, honestly-labeled "for fun" widget (inspired by the pilot-stat
+   HUD gauge on the GT Planar reference site, rebuilt from scratch with our
+   own tokens/timings — no reference assets or CSS were copied). Each bar
+   steps between hand-picked widths on a staggered loop, like an idling
+   instrument rather than a real sensor. */
+.pilot-stat-track {
+  position: relative;
+  height: 14px;
+  border: 1px solid var(--accent-green);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--border-dim) 0,
+    var(--border-dim) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  overflow: hidden;
+}
+
+.pilot-stat-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-green);
+  animation-duration: 22s;
+  animation-timing-function: steps(7, end);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* Static, real-value variant of the gauge fill — for HudGauge, where width
+   reflects an actual measured count rather than an idling animation. */
+.pilot-stat-fill-static {
+  position: relative;
+  transition: width 0.4s linear;
+}
+
+.pilot-stat-fill--focus {
+  animation-name: pilot-stat-focus;
+}
+@keyframes pilot-stat-focus {
+  0% { width: 55%; }
+  20% { width: 25%; }
+  45% { width: 70%; }
+  70% { width: 40%; }
+  100% { width: 85%; }
+}
+
+.pilot-stat-fill--caffeine {
+  animation-name: pilot-stat-caffeine;
+}
+@keyframes pilot-stat-caffeine {
+  0% { width: 90%; }
+  25% { width: 60%; }
+  50% { width: 100%; }
+  75% { width: 35%; }
+  100% { width: 80%; }
+}
+
+.pilot-stat-fill--curiosity {
+  animation-name: pilot-stat-curiosity;
+}
+@keyframes pilot-stat-curiosity {
+  0% { width: 70%; }
+  30% { width: 95%; }
+  55% { width: 50%; }
+  80% { width: 75%; }
+  100% { width: 60%; }
+}
+
+.pilot-stat-fill--debug-streak {
+  animation-name: pilot-stat-debug;
+}
+@keyframes pilot-stat-debug {
+  0% { width: 40%; }
+  35% { width: 65%; }
+  60% { width: 20%; }
+  85% { width: 90%; }
+  100% { width: 50%; }
+}
+
+.pilot-stat-fill--chill {
+  animation-name: pilot-stat-chill;
+}
+@keyframes pilot-stat-chill {
+  0% { width: 80%; }
+  20% { width: 45%; }
+  50% { width: 65%; }
+  75% { width: 30%; }
+  100% { width: 70%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pilot-stat-fill {
+    animation: none;
+    width: 65% !important;
+  }
+}
+
+/* ---------- Warp jump ----------
+   A short, punchy "jump to hyperspace" transition for the warp-jump easter
+   egg — radiating streaks flash and burst outward from center, then it's
+   gone. Built from scratch (conic-gradient + scale), not a copied asset;
+   nothing here blocks interaction once it's done, and it's skipped
+   entirely under reduced motion. */
+.warp-jump-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, #000000 85%);
+}
+
+.warp-jump-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background-image: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    var(--accent-yellow) 0deg 0.3deg,
+    transparent 0.3deg 4deg
+  );
+}
+
+.warp-jump-overlay.warp-jump-active {
+  animation: warp-jump-burst 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+.warp-jump-overlay.warp-jump-active::before {
+  animation: warp-jump-spin 0.6s linear forwards;
+}
+
+@keyframes warp-jump-burst {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(2.6);
+  }
+}
+
+@keyframes warp-jump-spin {
+  to {
+    transform: rotate(140deg) scale(1.6);
+  }
+}
+
+/* ---------- Secret mode (konami easter egg) ----------
+   A harmless decorative palette shift — hue-rotated + slightly boosted
+   contrast — toggled by the konami code in EasterEggs.tsx. Nothing here
+   is required for normal use of the site. */
+html.hud-secret-mode body {
+  filter: hue-rotate(140deg) saturate(1.3);
+  transition: filter 0.4s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.hud-secret-mode body {
+    transition: none;
+  }
+}
+
+/* ---------- HUD module dots ---------- */
+.hud-module-dot {
+  height: 5px;
+  width: 5px;
+  border-radius: 9999px;
+  display: inline-block;
+  background: var(--accent-green);
+}
+
+/* Blinking telemetry dot — used for "live" / real-time indicators only */
+.hud-live-dot {
+  animation: hud-live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hud-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-live-dot {
+    animation: none;
+  }
+}

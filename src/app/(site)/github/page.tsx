@@ -3,13 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import RepoExplorer, { type EnrichedRepo } from "@/components/github/RepoExplorer";
 import { fetchGithubRepos, fetchReadmeExcerpt } from "@/lib/github";
-import {
-  featuredRepositories,
-  hiddenRepositories,
-  repositoryCategories,
-  caseStudyLinks,
-  humanizeRepoName,
-} from "@/lib/repoConfig";
+import { getGithubPresentation, humanizeRepoName } from "@/lib/githubPresentation";
 
 export const metadata: Metadata = {
   title: "GitHub Projects — Karthik B",
@@ -17,25 +11,25 @@ export const metadata: Metadata = {
 };
 
 export default async function GithubPage() {
-  const { repos, stale, error } = await fetchGithubRepos();
-  const visibleRepos = repos.filter((r) => !hiddenRepositories.includes(r.name));
+  const [{ repos, stale, error }, presentation] = await Promise.all([fetchGithubRepos(), getGithubPresentation()]);
+  const visibleRepos = repos.filter((r) => !presentation.hiddenRepositories.includes(r.name));
 
   // README excerpts only fill in for featured repos that have no GitHub description —
   // fetching every repo's README would multiply our request count for little benefit
   // (see the comment on extractReadmeExcerpt in src/lib/github.ts).
   const needsExcerpt = visibleRepos.filter(
-    (r) => featuredRepositories.includes(r.name) && !r.description
+    (r) => presentation.featuredRepositories.includes(r.name) && !r.description
   );
   const excerpts = await Promise.all(needsExcerpt.map((r) => fetchReadmeExcerpt(r.name)));
   const excerptByName = new Map(needsExcerpt.map((r, i) => [r.name, excerpts[i]]));
 
   const enriched: EnrichedRepo[] = visibleRepos.map((repo) => ({
     repo,
-    displayName: humanizeRepoName(repo.name),
+    displayName: humanizeRepoName(repo.name, presentation.repositoryAliases),
     description: repo.description ?? excerptByName.get(repo.name) ?? null,
-    categories: repositoryCategories[repo.name] ?? [],
-    featured: featuredRepositories.includes(repo.name),
-    caseStudySlug: caseStudyLinks[repo.name],
+    categories: presentation.repositoryCategories[repo.name] ?? [],
+    featured: presentation.featuredRepositories.includes(repo.name),
+    caseStudySlug: presentation.caseStudyLinks[repo.name],
   }));
 
   return (
@@ -89,7 +83,7 @@ export default async function GithubPage() {
           </div>
         ) : (
           <Reveal>
-            <RepoExplorer repos={enriched} />
+            <RepoExplorer repos={enriched} customOrder={presentation.customProjectOrder} />
           </Reveal>
         )}
       </section>
