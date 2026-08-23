@@ -9,6 +9,14 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Migrations need a direct (non-pooled) connection — `migrate deploy`
+    // takes a Postgres advisory lock for the duration of the run, and
+    // PgBouncer-style transaction-mode poolers (what Neon's default
+    // DATABASE_URL goes through) don't preserve session state across pooled
+    // connections, so the lock acquisition just times out. The app's own
+    // runtime Prisma client (src/lib/prisma.ts) is unaffected by this file —
+    // it builds its adapter directly from DATABASE_URL for normal queries,
+    // where pooling is exactly what you want.
+    url: process.env["DATABASE_URL_UNPOOLED"] ?? process.env["DATABASE_URL"],
   },
 });
