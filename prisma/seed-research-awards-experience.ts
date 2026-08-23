@@ -149,6 +149,33 @@ async function main() {
     }
   }
 
+  // Added later directly via the Admin UI (not part of src/lib/data.ts's
+  // static experience list), so it needs its own entry here to survive a
+  // from-scratch database recovery.
+  const acmw = {
+    org: "ACM-W VIT",
+    role: "Club Member",
+    location: "VIT Chennai, Tamil Nadu, India",
+    startDate: new Date("2025-01-14T00:00:00.000Z"),
+    endDate: new Date("2025-09-24T00:00:00.000Z"),
+    bullets: [
+      "Coordinated and contributed to key student initiatives across creative and tech domains.",
+      "•\tProposed and executed the MEME WARS event idea, managing registrations, submissions, and on-ground execution",
+      "•\tLed a team of volunteers and coordinated with faculty for seamless event delivery",
+      "•\tCreated promotional posters and reels as part of ACM-W’s Media Team",
+      "•\tContributed to social media outreach for technical events and campaigns",
+    ],
+    published: true,
+  };
+  const existingAcmw = await prisma.experience.findFirst({ where: { org: acmw.org, role: acmw.role } });
+  if (existingAcmw) {
+    await prisma.experience.update({ where: { id: existingAcmw.id }, data: acmw });
+    console.log(`Updated experience: ${acmw.org}`);
+  } else {
+    await prisma.experience.create({ data: { ...acmw, displayOrder: staticExperience.length } });
+    console.log(`Created experience: ${acmw.org}`);
+  }
+
   await prisma.$disconnect();
 }
 
