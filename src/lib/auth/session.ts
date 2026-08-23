@@ -69,16 +69,24 @@ export async function getCurrentAdmin(): Promise<CurrentAdmin | null> {
   const raw = store.get(SESSION_COOKIE_NAME)?.value;
   if (!raw) return null;
 
-  const session = await prisma.adminSession.findUnique({
-    where: { tokenHash: hashToken(raw) },
-    include: { user: { select: { id: true, username: true, mustChangePassword: true } } },
-  });
+  // Fail closed, not crashed: a DB outage here must read as "not logged in"
+  // (redirect to /admin/login) rather than throw and take down every admin
+  // page — and every public page too, since the layout also calls this.
+  try {
+    const session = await prisma.adminSession.findUnique({
+      where: { tokenHash: hashToken(raw) },
+      include: { user: { select: { id: true, username: true, mustChangePassword: true } } },
+    });
 
-  if (!session) return null;
-  if (session.revokedAt) return null;
-  if (session.expiresAt.getTime() < Date.now()) return null;
+    if (!session) return null;
+    if (session.revokedAt) return null;
+    if (session.expiresAt.getTime() < Date.now()) return null;
 
-  return { sessionId: session.id, user: session.user };
+    return { sessionId: session.id, user: session.user };
+  } catch (err) {
+    console.error("[auth] session lookup failed:", err instanceof Error ? err.message : err);
+    return null;
+  }
 }
 
 export async function revokeCurrentSession() {

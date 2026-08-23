@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma migrate deploy && tsx prisma/seed.ts && tsx prisma/seed-profile.ts && tsx prisma/seed-projects.ts && tsx prisma/seed-research-awards-experience.ts && tsx prisma/seed-education-and-skills.ts && tsx prisma/seed-github-overrides.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
@@ -28,6 +28,7 @@
     "prisma": "^7.9.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "resend": "^6.22.0",
     "server-only": "^0.0.1",
     "zod": "^4.4.3"
   },
