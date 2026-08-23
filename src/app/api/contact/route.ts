@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+
+const CONTACT_RECIPIENT = "bkarthik0404@gmail.com";
 
 type ContactPayload = {
   name: string;
@@ -23,39 +26,37 @@ function isValidPayload(body: unknown): body is ContactPayload {
 }
 
 /**
- * Delivers a validated contact-form submission.
- *
- * TODO(you): wire this up to an actual email/notification channel. This is a
- * genuine architecture decision with real trade-offs — pick the one that
- * matches how much infra you want to own:
- *
- *   1. Resend (recommended for Vercel): npm i resend, then call
- *      `resend.emails.send(...)` with a RESEND_API_KEY env var.
- *      Pros: 3 lines of code, great deliverability. Cons: third-party dependency.
- *
- *   2. Nodemailer + your own SMTP (e.g. Gmail app password):
- *      Pros: no new vendor. Cons: Gmail SMTP has sending limits and can get
- *      flagged as spam; app-password setup is fiddly.
- *
- *   3. A hosted form service (Formspree, Web3Forms): skip this route
- *      entirely and point the form's `action` at their endpoint instead.
- *      Pros: zero backend code. Cons: another account, less control over the UX.
- *
- * Until you pick one, this handler validates input and logs it server-side
- * so nothing is silently lost — check your Vercel function logs.
+ * Delivers a validated contact-form submission by email via Resend, when
+ * RESEND_API_KEY is configured. The message is always persisted to
+ * ContactMessage first (see POST below) regardless of this succeeding — this
+ * is a best-effort real-time notification on top of that, never the only
+ * record of the submission.
  */
-async function deliverContactMessage(payload: ContactPayload): Promise<void> {
-  console.log("[contact] new submission:", payload);
-  // TODO(you): the message below is now persisted (visible in Admin → Contact
-  // Messages), but no real-time notification is wired up yet. Add one, e.g.:
-  //
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // await resend.emails.send({
-  //   from: "portfolio@yourdomain.com",
-  //   to: "bkarthik0404@gmail.com",
-  //   subject: payload.subject || `Portfolio contact from ${payload.name}`,
-  //   text: `${payload.email}\n\n${payload.message}`,
-  // });
+async function deliverContactMessage(payload: ContactPayload): Promise<{ delivered: boolean }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log("[contact] RESEND_API_KEY not configured — message stored, no email sent");
+    return { delivered: false };
+  }
+
+  try {
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from: "Portfolio Contact <onboarding@resend.dev>",
+      to: CONTACT_RECIPIENT,
+      replyTo: payload.email,
+      subject: payload.subject?.trim() || `Portfolio contact from ${payload.name}`,
+      text: `From: ${payload.name} <${payload.email}>\n\n${payload.message}`,
+    });
+    if (error) {
+      console.error("[contact] Resend delivery failed:", error);
+      return { delivered: false };
+    }
+    return { delivered: true };
+  } catch (err) {
+    console.error("[contact] Resend delivery threw:", err);
+    return { delivered: false };
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await deliverContactMessage(body);
+  const { delivered } = await deliverContactMessage(body);
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, delivered });
 }
