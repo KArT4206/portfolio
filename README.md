@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Karthik B – Portfolio
 
-## Getting Started
+A personal portfolio that doubles as a small content-management system. The public site presents projects, published research, awards, experience and skills in a "cockpit HUD" visual style, with a **live GitHub project feed**; a private **admin CMS** edits all of it without redeploying.
 
-First, run the development server:
+**Live site:** https://portfolio-kart4206s-projects.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> This repository documents the project (description, design, screenshots). The source code lives in a private repository, `portfolio-code`.
+
+## Screenshots
+
+**Home**: hero, live status bars, selected work, research, awards, skill stack and contact form.
+
+![Home](docs/images/home.png)
+
+| About (identity panel, education, experience, honours) | GitHub feed |
+|---|---|
+| ![About](docs/images/about.png) | ![GitHub](docs/images/github.png) |
+
+| Project case study | Project case study |
+|---|---|
+| ![Fog project](docs/images/project-fog.png) | ![Phishing project](docs/images/project-phishing.png) |
+
+## Features
+- **Case-study pages** for each project: summary, status, stack, role and links, generated from CMS data.
+- **Research and awards sections**, including publication metrics and recognition such as Best Paper Award.
+- **Live GitHub feed**: the site reads the owner's public repositories through the GitHub API, caches them for an hour (ISR), and a GitHub webhook revalidates the cache instantly on push. Each repository card can be given a custom title, summary and visibility in the admin.
+- **Contact form** that stores messages in the database and, when an e-mail key is configured, sends a notification.
+- **Admin CMS** (password-protected): create, edit and soft-delete projects, research, publications, awards, certifications, experience, education and skill groups; upload media and a downloadable resume; manage the profile and site settings; read messages; and review an **audit log** of every change.
+- **Optional fun layer** toggled from the admin: mascots, a small arcade (Snake, Neon Maze, XOX, Catch the Ghost), a CMS-backed terminal and a secret keyboard mode.
+- **Dark HUD design system** with scroll-reveal animation, responsive down to phones.
+
+## How it works
 ```
+Visitor -> Next.js (App Router, server components) -> Prisma -> PostgreSQL
+                         |-> GitHub REST API (hourly cache + webhook revalidation)
+Admin  -> /admin (signed session cookie) -> server actions -> validate (zod) -> Prisma -> audit log
+Uploads -> local disk in dev / Vercel Blob in production
+Contact -> /api/contact -> DB row + e-mail (Resend)
+```
+1. **Content lives in PostgreSQL** (projects, research, awards, experience, education, skills, media, profile, site settings, messages, audit log). Pages are server-rendered from it, so edits appear without a rebuild.
+2. **Resilience**: if the database is unreachable, public queries fall back to empty sections instead of crashing the site.
+3. **Admin security**: Argon2 password hashes, HMAC-SHA256 signed session cookies (rotating the secret logs everyone out), login-attempt tracking, forced password change, and every mutation protected by a server-side admin check.
+4. **GitHub integration**: repositories are fetched server-side with an optional token, cached, and merged with admin-defined presentation overrides.
+5. **Deployment**: Vercel; the build runs migrations and seed scripts so a fresh database is created and populated automatically.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech stack
+Next.js 16, React 19, TypeScript, Tailwind CSS 4, Framer Motion, Prisma 7, PostgreSQL, Argon2, Zod, Resend, Vercel Blob, Vercel.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Author
+Karthik B, final-year Computer Science undergraduate, VIT Chennai.
