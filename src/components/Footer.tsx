@@ -12,9 +12,6 @@ export default async function Footer() {
       <div className="flex flex-col items-center gap-6 px-6 py-10 text-center sm:flex-row sm:justify-between sm:text-left md:px-10">
         <div>
           <p className="font-display text-sm font-medium tracking-[0.05em]">{profile.name}</p>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
-            {profile.location}
-          </p>
           <div className="mt-[10px] hidden sm:block">
             <HudModuleStatus />
           </div>

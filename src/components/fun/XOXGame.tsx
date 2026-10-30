@@ -143,7 +143,7 @@ export default function XOXGame({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={() => play(i)}
             data-cursor="PLAY"
-            className="flex h-[68px] w-[68px] cursor-none items-center justify-center bg-black font-display text-3xl text-foreground hover:bg-surface-2"
+            className="flex h-[68px] w-[68px] cursor-pointer items-center justify-center bg-black font-display text-3xl text-foreground hover:bg-surface-2"
           >
             {cell === "X" && <span className="text-accent-green">X</span>}
             {cell === "O" && <span className="text-accent-yellow">O</span>}

@@ -20,7 +20,9 @@ const HELP_LINES = [
   "  github     — open the GitHub page",
   "  contact    — jump to the contact channel",
   "  games      — open the arcade",
-  "  ghost      — summon the ghost",
+  "  buddy      — wake up the pixel buddy",
+  "  potty      — the buddy needs the washroom",
+  "  blackout   — cut the power",
   "  matrix     — pulse the background grid",
   "  clear      — clear this screen",
 ];
@@ -104,8 +106,19 @@ export default function FunTerminal({
         onOpenArcade();
         break;
       case "ghost":
+      case "buddy":
         print("...");
         onSummonGhost();
+        break;
+      case "potty":
+        print("He's been holding it for a while ...");
+        window.dispatchEvent(new CustomEvent("kb:buddy-washroom"));
+        onClose();
+        break;
+      case "blackout":
+        print("Pulling the main fuse ...");
+        window.dispatchEvent(new CustomEvent("kb:blackout"));
+        onClose();
         break;
       case "matrix":
         print("Pulsing grid.");

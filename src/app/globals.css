@@ -468,3 +468,234 @@ html.hud-secret-mode body {
     animation: none;
   }
 }
+
+/* ---------- Editorial monochrome skin (public site only) ----------
+   Scoped to the (site) body so /admin, which shares this stylesheet,
+   keeps its own tokens. Accents collapse to white/grey. */
+.site-mono {
+  --accent-violet: #ffffff;
+  --accent-violet-field: #ffffff;
+  --accent-yellow: #ffffff;
+  --accent-green: #ffffff;
+  --accent-amber: #bdbdbd;
+  --surface-2: #111111;
+  --surface-elevated: #111111;
+  --muted: #9a9a9a;
+  --dim: #6b6b6b;
+  --border-dim: #2e2e2e;
+  font-weight: 400;
+}
+
+.site-mono ::selection {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* bg-accent buttons become white, so their text must flip to black */
+.site-mono .bg-accent {
+  color: #000000;
+}
+
+.font-serif-display {
+  font-family: var(--font-instrument-serif), Georgia, serif;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.marquee-track {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track--reverse {
+  animation-direction: reverse;
+}
+
+.spin-slow {
+  animation: spin-slow 24s linear infinite;
+  will-change: transform;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .spin-slow {
+    animation: none;
+  }
+}
+
+/* ---------- Pixel buddy ---------- */
+@keyframes buddy-knock {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+html.buddy-knock main { animation: buddy-knock 0.3s linear; }
+
+@keyframes buddy-wobble {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+.buddy-wobble { animation: buddy-wobble 0.35s ease-in-out 2; }
+.buddy-dizzy { animation: buddy-wobble 0.5s ease-in-out infinite; }
+
+@keyframes buddy-juggle {
+  0% { transform: translate(-14px, 4px); }
+  50% { transform: translate(0, -20px); }
+  100% { transform: translate(14px, 4px); }
+}
+.buddy-ball { animation: buddy-juggle 0.5s ease-in-out infinite alternate; }
+
+@keyframes buddy-heart {
+  from { opacity: 1; transform: translateY(0) scale(0.8); }
+  to { opacity: 0; transform: translateY(-30px) scale(1.2); }
+}
+.buddy-heart { animation: buddy-heart 0.9s ease-out forwards; }
+
+@keyframes buddy-swirl { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.buddy-swirl { animation: buddy-swirl 0.5s linear infinite; }
+
+/* ---------- Blackout + torch ---------- */
+@keyframes blackout-fail {
+  0% { opacity: 0; } 12% { opacity: 1; } 20% { opacity: 0.1; } 34% { opacity: 1; }
+  44% { opacity: 0.25; } 56% { opacity: 1; } 64% { opacity: 0.5; } 100% { opacity: 1; }
+}
+@keyframes blackout-restore {
+  0% { opacity: 1; } 20% { opacity: 0.2; } 30% { opacity: 1; } 55% { opacity: 0.4; } 65% { opacity: 0.9; } 100% { opacity: 0; }
+}
+.blackout-failing { background: #000; animation: blackout-fail 1.3s steps(1, end) forwards; }
+.blackout-restoring { background: #000; animation: blackout-restore 0.9s ease-out forwards; }
+.blackout-dark {
+  background: #000;
+  -webkit-mask-image: radial-gradient(circle 200px at var(--torch-x, 50%) var(--torch-y, 50%), transparent 0%, rgba(0, 0, 0, 0.25) 40%, rgba(0, 0, 0, 0.9) 78%, #000 100%);
+  mask-image: radial-gradient(circle 200px at var(--torch-x, 50%) var(--torch-y, 50%), transparent 0%, rgba(0, 0, 0, 0.25) 40%, rgba(0, 0, 0, 0.9) 78%, #000 100%);
+}
+
+@keyframes torch-flicker {
+  0%, 100% { opacity: 0.95; } 23% { opacity: 0.8; } 41% { opacity: 1; } 67% { opacity: 0.86; } 83% { opacity: 0.97; }
+}
+.torch-glow {
+  background: radial-gradient(circle 230px at var(--torch-x, 50%) var(--torch-y, 50%), rgba(255, 176, 70, 0.42), rgba(255, 120, 30, 0.14) 45%, transparent 72%);
+  mix-blend-mode: overlay;
+  animation: torch-flicker 1.7s ease-in-out infinite;
+}
+
+@keyframes fuse-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.45); opacity: 1; }
+  50% { box-shadow: 0 0 18px 2px rgba(252, 211, 77, 0.35); opacity: 0.75; }
+}
+.fuse-box { animation: fuse-pulse 1.4s ease-in-out infinite; }
+
+/* ---------- Tomb theme (only while the power is out) ---------- */
+[data-theme="tomb"] body.site-mono {
+  background-color: #b99b6b;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(42, 26, 10, 0.55) 0 2px, rgba(255, 236, 205, 0.22) 2px 3px, transparent 3px 190px),
+    repeating-linear-gradient(90deg, rgba(42, 26, 10, 0.45) 0 2px, rgba(255, 236, 205, 0.18) 2px 3px, transparent 3px 380px),
+    var(--stone);
+  background-size: auto, auto, 640px 640px;
+}
+
+[data-theme="tomb"] .site-mono main > section,
+[data-theme="tomb"] .site-mono footer {
+  position: relative;
+  background: transparent !important;
+}
+
+[data-theme="tomb"] .site-mono :is(main, footer) :is(h1, h2, h3, h4, p, span, a, li, blockquote, label, button, small, strong, em, footer, time, dt, dd) {
+  color: #5b4128 !important;
+  text-shadow: -1px -1px 0 rgba(28, 16, 4, 0.6), 1px 1px 0 rgba(255, 238, 205, 0.5) !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+[data-theme="tomb"] .site-mono :is(main, footer) :is(h1, h2, h3) {
+  font-family: var(--font-cinzel), serif !important;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="tomb"] .site-mono :is(main, footer) * {
+  border-color: rgba(58, 38, 18, 0.45) !important;
+}
+
+[data-theme="tomb"] .site-mono main section [class*="bg-"],
+[data-theme="tomb"] .site-mono main :is(input, textarea, select) {
+  background-color: rgba(70, 46, 20, 0.12) !important;
+  background-image: none !important;
+  box-shadow: inset 3px 3px 6px rgba(28, 16, 4, 0.5), inset -2px -2px 3px rgba(255, 236, 205, 0.4) !important;
+  clip-path: polygon(0 6px, 6px 0, calc(100% - 4px) 0, 100% 5px, 100% calc(100% - 7px), calc(100% - 6px) 100%, 5px 100%, 0 calc(100% - 4px));
+}
+
+[data-theme="tomb"] .site-mono main img {
+  filter: sepia(1) contrast(0.85) brightness(0.8);
+  mix-blend-mode: multiply;
+}
+
+[data-theme="tomb"] .site-mono main svg { color: #5b4128; }
+
+.tomb-glyph,
+[data-theme="tomb"] .site-mono main > section::before,
+[data-theme="tomb"] .site-mono main > section:first-child::after,
+[data-theme="tomb"] .site-mono #work::after {
+  color: #5e4429;
+  text-shadow: -1px -1px 0 rgba(28, 16, 4, 0.65), 1px 1px 0 rgba(255, 238, 205, 0.5);
+}
+
+[data-theme="tomb"] .site-mono main > section::before {
+  content: "𓂀 𓋹 𓆣 𓇳 𓃭 𓅓 𓊝 𓏏 𓆑 𓂻 𓋹 𓂀 𓆣 𓇳 𓃭 𓅓 𓊝 𓏏 𓆑 𓂻 𓋹 𓂀 𓆣 𓇳 𓃭 𓅓 𓊝 𓏏 𓆑 𓂻";
+  position: absolute;
+  inset: 8px 0 auto;
+  z-index: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  font-family: var(--font-hiero), serif;
+  font-size: 26px;
+  letter-spacing: 12px;
+  padding: 4px 0;
+  border-block: 2px solid rgba(58, 38, 18, 0.4);
+  pointer-events: none;
+}
+
+[data-theme="tomb"] .site-mono main > section:first-child::after {
+  content: "𓂀";
+  position: absolute;
+  right: 6%;
+  bottom: 10%;
+  font-family: var(--font-hiero), serif;
+  font-size: clamp(80px, 14vw, 180px);
+  pointer-events: none;
+}
+
+[data-theme="tomb"] .site-mono #work::after {
+  content: "𓋹 the treasure is in the repos 𓋹";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  text-align: center;
+  font-family: var(--font-cinzel), serif;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  pointer-events: none;
+}
+
+.tomb-glyph { font-family: var(--font-hiero), serif; }
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy-wobble, .buddy-dizzy, .buddy-ball, .buddy-heart, .buddy-swirl,
+  .torch-glow, .fuse-box, html.buddy-knock main { animation: none; }
+}
