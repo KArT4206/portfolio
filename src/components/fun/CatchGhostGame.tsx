@@ -60,7 +60,7 @@ export default function CatchGhostGame({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={catchGhost}
             data-cursor="CATCH"
-            className="absolute flex h-[36px] w-[36px] cursor-none items-center justify-center transition-[left,top] duration-300 ease-out"
+            className="absolute flex h-[36px] w-[36px] cursor-pointer items-center justify-center transition-[left,top] duration-300 ease-out"
             style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
             aria-label="Catch the ghost"
           >

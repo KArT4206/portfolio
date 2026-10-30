@@ -1,35 +1,39 @@
 import Hero from "@/components/sections/Hero";
-import SystemGauges from "@/components/sections/SystemGauges";
-import Mission from "@/components/sections/Mission";
-import FeaturedWork from "@/components/sections/FeaturedWork";
+import AboutCircle from "@/components/sections/AboutCircle";
+import ServicesMarquee from "@/components/sections/ServicesMarquee";
+import Freelance from "@/components/sections/Freelance";
+import ShowcaseCarousel from "@/components/sections/ShowcaseCarousel";
 import Research from "@/components/sections/Research";
 import Awards from "@/components/sections/Awards";
-import Skills from "@/components/sections/Skills";
 import Contact from "@/components/sections/Contact";
-import { getAllPublishedSlugs } from "@/lib/projects";
+import { getFeaturedProjects } from "@/lib/projects";
 import { getProfile } from "@/lib/profile";
 import { getSiteSettings } from "@/lib/siteSettings";
 
 export default async function Home() {
-  const [projectSlugs, profile, settings] = await Promise.all([
-    getAllPublishedSlugs(),
+  const [projects, profile, settings] = await Promise.all([
+    getFeaturedProjects(),
     getProfile(),
     getSiteSettings(),
   ]);
 
   return (
     <>
-      <Hero
-        projectSlugs={projectSlugs}
-        profile={profile}
-        showTerminalButton={settings.funModeEnabled && settings.terminalEnabled}
+      <Hero profile={profile} showTerminalButton={settings.funModeEnabled && settings.terminalEnabled} />
+      <AboutCircle profile={profile} />
+      <ServicesMarquee />
+      <Freelance email={profile.email} />
+      <ShowcaseCarousel
+        projects={projects.map(({ slug, title, tagline, category, coverImageUrl }) => ({
+          slug,
+          title,
+          tagline,
+          category,
+          coverImageUrl,
+        }))}
       />
-      <SystemGauges />
-      <Mission />
-      <FeaturedWork />
       <Research />
       <Awards />
-      <Skills />
       <Contact email={profile.email} />
     </>
   );
