@@ -45,7 +45,8 @@ async function main() {
     await prisma.githubRepoOverride.upsert({
       where: { repoName },
       create: { repoName, ...data },
-      update: data,
+      // Never overwrite an existing override — admin edits win.
+      update: {},
     });
     console.log(`Upserted GitHub override: ${repoName}`);
   }

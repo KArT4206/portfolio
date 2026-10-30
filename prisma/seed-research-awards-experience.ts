@@ -99,8 +99,7 @@ async function main() {
       published: r.published,
     };
     if (existing) {
-      await prisma.research.update({ where: { id: existing.id }, data });
-      console.log(`Updated research: ${r.title}`);
+      console.log(`Skipped existing research: ${r.title}`);
     } else {
       await prisma.research.create({ data: { ...data, displayOrder: index } });
       console.log(`Created research: ${r.title}`);
@@ -118,8 +117,7 @@ async function main() {
       featured: a.featured,
     };
     if (existing) {
-      await prisma.award.update({ where: { id: existing.id }, data });
-      console.log(`Updated award: ${a.title}`);
+      console.log(`Skipped existing award: ${a.title}`);
     } else {
       await prisma.award.create({ data: { ...data, displayOrder: index } });
       console.log(`Created award: ${a.title}`);
@@ -141,8 +139,7 @@ async function main() {
       endDate: null,
     };
     if (existing) {
-      await prisma.experience.update({ where: { id: existing.id }, data });
-      console.log(`Updated experience: ${e.org}`);
+      console.log(`Skipped existing experience: ${e.org}`);
     } else {
       await prisma.experience.create({ data: { ...data, displayOrder: index } });
       console.log(`Created experience: ${e.org}`);
@@ -169,8 +166,7 @@ async function main() {
   };
   const existingAcmw = await prisma.experience.findFirst({ where: { org: acmw.org, role: acmw.role } });
   if (existingAcmw) {
-    await prisma.experience.update({ where: { id: existingAcmw.id }, data: acmw });
-    console.log(`Updated experience: ${acmw.org}`);
+    console.log(`Skipped existing experience: ${acmw.org}`);
   } else {
     await prisma.experience.create({ data: { ...acmw, displayOrder: staticExperience.length } });
     console.log(`Created experience: ${acmw.org}`);
