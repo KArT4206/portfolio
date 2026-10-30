@@ -31,8 +31,7 @@ async function main() {
     published: true,
   };
   if (existingEducation) {
-    await prisma.education.update({ where: { id: existingEducation.id }, data: educationData });
-    console.log(`Updated education: ${staticEducation.school}`);
+    console.log(`Skipped existing education: ${staticEducation.school}`);
   } else {
     await prisma.education.create({ data: { ...educationData, displayOrder: 0 } });
     console.log(`Created education: ${staticEducation.school}`);
@@ -42,8 +41,7 @@ async function main() {
     const existing = await prisma.skillGroup.findFirst({ where: { category: s.category } });
     const data = { category: s.category, items: s.items, published: true };
     if (existing) {
-      await prisma.skillGroup.update({ where: { id: existing.id }, data });
-      console.log(`Updated skill group: ${s.category}`);
+      console.log(`Skipped existing skill group: ${s.category}`);
     } else {
       await prisma.skillGroup.create({ data: { ...data, displayOrder: index } });
       console.log(`Created skill group: ${s.category}`);

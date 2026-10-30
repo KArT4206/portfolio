@@ -50,22 +50,8 @@ async function main() {
         published: true,
         displayOrder: index,
       },
-      update: {
-        title: p.title,
-        shortTitle: p.shortTitle,
-        shortDescription: p.tagline,
-        detailedDescription: p.overview,
-        problem: p.problem,
-        solution: p.solution,
-        results: p.results as never,
-        role: p.role,
-        technologies: p.tech,
-        githubUrl: p.repoUrl ?? null,
-        status: STATUS_MAP[p.status] ?? "IN_DEVELOPMENT",
-        categories,
-        featured: p.featured,
-        displayOrder: index,
-      },
+      // Never overwrite a project that already exists — admin edits win.
+      update: {},
     });
 
     console.log(`✓ ${saved.slug}`);
