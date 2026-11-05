@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import EasterEggs from "@/components/hud/EasterEggs";
 import FunSystem from "@/components/fun/FunSystem";
 import IntroLoader from "@/components/IntroLoader";
+import AsciiTrail from "@/components/AsciiTrail";
+import ToneWatcher from "@/components/ToneWatcher";
 import { getSiteSettings } from "@/lib/siteSettings";
 
 // Inter is bound to the existing display/sans variable names so every
@@ -66,6 +68,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     >
       <body className="site-mono min-h-full flex flex-col bg-background text-foreground">
         <IntroLoader />
+        <AsciiTrail />
+        <ToneWatcher />
         <EasterEggs maxWarpEnabled={settings.maxWarpEnabled} />
         <FunSystem settings={settings} />
         <Navbar />

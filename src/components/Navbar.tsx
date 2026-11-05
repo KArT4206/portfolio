@@ -14,14 +14,13 @@ const NAV_LINKS = [
   { href: "/github", label: "GitHub" },
 ];
 
-// mix-blend-difference keeps the white navbar readable over both the black
-// hero and the white sections without tracking scroll position.
+// Colour flips with the surface underneath via data-top-tone (ToneWatcher).
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header>
-      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 py-5 text-white mix-blend-difference md:px-10">
+    <header data-tone-ignore>
+      <nav className="tone-top fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 py-5 md:px-10">
         <Link href="/" className="font-display text-xl font-extrabold tracking-tight">
           karthik.b
         </Link>
@@ -37,7 +36,7 @@ export default function Navbar() {
           <li>
             <Link
               href="/#contact"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white px-5 py-2 transition-colors hover:bg-white hover:text-black"
+              className="inline-flex items-center gap-1.5 rounded-full border border-current px-5 py-2 transition-opacity hover:opacity-70"
             >
               Hire me <ArrowUpRight size={14} />
             </Link>
@@ -48,7 +47,7 @@ export default function Navbar() {
           aria-label="Toggle menu"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="rounded-full border border-white p-2 md:hidden"
+          className="rounded-full border border-current p-2 md:hidden"
         >
           {open ? <X size={18} /> : <Menu size={18} />}
         </button>

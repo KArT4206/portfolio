@@ -699,3 +699,14 @@ html.buddy-knock main { animation: buddy-knock 0.3s linear; }
   .buddy-wobble, .buddy-dizzy, .buddy-ball, .buddy-heart, .buddy-swirl,
   .torch-glow, .fuse-box, html.buddy-knock main { animation: none; }
 }
+
+/* ---------- Fixed UI that flips with the surface beneath (ToneWatcher) ---------- */
+.tone-top,
+.tone-bottom {
+  color: #fff;
+  transition: color 0.25s ease;
+}
+html[data-top-tone="light"] .tone-top,
+html[data-bottom-tone="light"] .tone-bottom {
+  color: #000;
+}

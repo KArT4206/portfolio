@@ -80,10 +80,11 @@ export default function FunSystem({ settings }: { settings: SiteSettings }) {
       {(settings.arcadeEnabled || settings.terminalEnabled) && (
         <button
           type="button"
+          data-tone-ignore
           onClick={() => setActive("arcade-menu")}
           data-cursor="PLAY"
           aria-label="Fun"
-          className="fixed bottom-[15px] right-[15px] z-[89] flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white bg-black text-white mix-blend-difference transition-transform hover:scale-110"
+          className="fixed bottom-[15px] right-[15px] z-[89] flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white bg-black text-white transition-transform hover:scale-110"
         >
           <Gamepad2 size={14} />
         </button>

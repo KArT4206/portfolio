@@ -636,7 +636,8 @@ const PixelBuddy = forwardRef<BuddyHandle>(function PixelBuddy(_, ref) {
     <>
       <div
         ref={spriteRef}
-        className="pointer-events-none fixed bottom-0 left-0 z-[96] text-white mix-blend-difference"
+        data-tone-ignore
+        className="tone-bottom pointer-events-none fixed bottom-0 left-0 z-[96]"
         style={{ width: SIZE, height: SIZE, visibility: act === "inwc" ? "hidden" : "visible", transformOrigin: "center" }}
       >
         <div

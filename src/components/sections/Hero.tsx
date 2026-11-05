@@ -15,7 +15,6 @@ export default function Hero({
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
 
   return (
     <section
@@ -37,7 +36,7 @@ export default function Hero({
         />
       )}
 
-      <motion.div style={{ opacity, scale }} className="relative z-10 flex max-w-6xl flex-col items-center text-center">
+      <motion.div style={{ opacity }} className="relative z-10 flex max-w-6xl flex-col items-center text-center">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
