@@ -1,5 +1,8 @@
 # Karthik B – Portfolio
 
+[![Project site](https://img.shields.io/badge/site-live-brightgreen)](https://portfolio-kart4206s-projects.vercel.app)
+![Last commit](https://img.shields.io/github/last-commit/KArT4206/portfolio)
+
 A personal portfolio that doubles as a small content-management system. The public site presents projects, published research, awards, experience and skills in a "cockpit HUD" visual style, with a **live GitHub project feed**; a private **admin CMS** edits all of it without redeploying.
 
 **Live site:** https://portfolio-kart4206s-projects.vercel.app
